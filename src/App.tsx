@@ -8,8 +8,24 @@ import Quiz from "./pages/Quiz.tsx";
 import Loading from "./pages/Loading.tsx";
 import Results from "./pages/Results.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import OfflineScreen from "./components/OfflineScreen";
+import { useOnlineStatus } from "./hooks/use-online-status";
 
 const queryClient = new QueryClient();
+
+const AppRoutes = () => {
+  const isOnline = useOnlineStatus();
+  if (!isOnline) return <OfflineScreen />;
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/quiz" element={<Quiz />} />
+      <Route path="/loading" element={<Loading />} />
+      <Route path="/results" element={<Results />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -17,7 +33,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
+        <AppRoutes />
+        <Routes_unused style={{ display: "none" }}>
           <Route path="/" element={<Index />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/loading" element={<Loading />} />
