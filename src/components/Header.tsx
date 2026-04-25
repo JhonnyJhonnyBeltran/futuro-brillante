@@ -1,7 +1,7 @@
 const Header = () => {
   return (
     <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-border safe-top">
-      <div className="flex items-center gap-3 px-5 py-3">
+      <div className="flex items-center gap-3 px-6 py-4">
         <div
           className="flex items-center justify-center font-black text-white shrink-0"
           style={{

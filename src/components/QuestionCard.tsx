@@ -20,12 +20,12 @@ const QuestionCard = ({
 }: Props) => {
   return (
     <div className={`question-card ${animationClass ?? ""}`}>
-      <div className="p-5 pt-6">
+      <div className="px-6 pt-7 pb-2">
         <span className="pill-dark mb-4">Pregunta {index + 1}</span>
-        <h2 className="text-[1.125rem] font-bold text-foreground leading-snug mt-3 mb-5">
+        <h2 className="text-[1.125rem] font-bold text-foreground leading-snug mt-4 mb-6">
           {question.text}
         </h2>
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-3">
           {question.options.map((o) => (
             <OptionButton
               key={o.id}
@@ -37,7 +37,7 @@ const QuestionCard = ({
           ))}
         </div>
       </div>
-      <div className="flex items-center justify-between gap-3 px-5 py-4 border-t border-border">
+      <div className="flex items-center justify-between gap-3 px-6 py-5 mt-3 border-t border-border">
         <button
           type="button"
           className="btn-secondary"
@@ -56,7 +56,7 @@ const QuestionCard = ({
           {isLast ? "Ver resultados" : "Siguiente →"}
         </button>
       </div>
-      <div className="text-center text-[11px] text-muted-foreground pb-3">
+      <div className="text-center text-[11px] text-muted-foreground pb-4">
         {index + 1} / {total}
       </div>
     </div>

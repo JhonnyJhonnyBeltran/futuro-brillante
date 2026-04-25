@@ -44,7 +44,7 @@ const Results = () => {
   return (
     <div className="mobile-shell">
       <Header />
-      <main className="px-4 pt-4 pb-10">
+      <main className="px-5 pt-6 pb-12">
         <div className="text-center mb-6 anim-fade-up">
           <h1 className="text-[1.75rem] font-black leading-tight">
             <span className="text-gradient-accent">🎉 ¡Tus resultados!</span>
