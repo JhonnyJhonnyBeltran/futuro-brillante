@@ -16,7 +16,7 @@ const Welcome = () => {
       <div className="blob" style={{ width: 300, height: 300, top: -80, left: -80, background: "rgba(255,107,53,0.05)", animation: "blob-float 8s ease-in-out infinite" }} />
       <div className="blob" style={{ width: 280, height: 280, bottom: -60, right: -60, background: "rgba(59,130,246,0.05)", animation: "blob-float 10s ease-in-out infinite reverse" }} />
 
-      <div className="relative z-10 flex flex-col items-center px-6 pt-10 pb-8 min-h-[100dvh] safe-top safe-bottom">
+      <div className="relative z-10 flex flex-col items-center px-6 pt-10 pb-8 min-h-[100dvh] safe-top safe-bottom my-[10px]">
         {/* Logo block */}
         <div className="flex flex-col items-center text-center anim-fade-up">
           <div
@@ -74,7 +74,7 @@ const Welcome = () => {
             Comenzar →
           </button>
           <p className="text-center text-xs text-muted-foreground mt-3">
-            ~5 minutos · Totalmente gratuito
+            Cuestionario anónimo totalmente gratuito 
           </p>
         </div>
       </div>
