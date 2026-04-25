@@ -1,0 +1,66 @@
+import { Question } from "@/lib/quiz-data";
+import OptionButton from "./OptionButton";
+
+type Props = {
+  question: Question;
+  index: number;
+  total: number;
+  selected?: "A" | "B" | "C" | "D";
+  onSelect: (id: "A" | "B" | "C" | "D") => void;
+  onPrev: () => void;
+  onNext: () => void;
+  canPrev: boolean;
+  isLast: boolean;
+  animationClass?: string;
+};
+
+const QuestionCard = ({
+  question, index, total, selected, onSelect,
+  onPrev, onNext, canPrev, isLast, animationClass,
+}: Props) => {
+  return (
+    <div className={`question-card ${animationClass ?? ""}`}>
+      <div className="p-5 pt-6">
+        <span className="pill-dark mb-4">Pregunta {index + 1}</span>
+        <h2 className="text-[1.125rem] font-bold text-foreground leading-snug mt-3 mb-5">
+          {question.text}
+        </h2>
+        <div className="flex flex-col gap-2.5">
+          {question.options.map((o) => (
+            <OptionButton
+              key={o.id}
+              letter={o.id}
+              text={o.text}
+              selected={selected === o.id}
+              onClick={() => onSelect(o.id)}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center justify-between gap-3 px-5 py-4 border-t border-border">
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={onPrev}
+          disabled={!canPrev}
+          style={{ opacity: canPrev ? 1 : 0.4 }}
+        >
+          ← Anterior
+        </button>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={onNext}
+          disabled={!selected}
+        >
+          {isLast ? "Ver resultados" : "Siguiente →"}
+        </button>
+      </div>
+      <div className="text-center text-[11px] text-muted-foreground pb-3">
+        {index + 1} / {total}
+      </div>
+    </div>
+  );
+};
+
+export default QuestionCard;
