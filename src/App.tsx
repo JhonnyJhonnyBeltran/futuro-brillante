@@ -34,13 +34,6 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AppRoutes />
-        <Routes_unused style={{ display: "none" }}>
-          <Route path="/" element={<Index />} />
-          <Route path="/quiz" element={<Quiz />} />
-          <Route path="/loading" element={<Loading />} />
-          <Route path="/results" element={<Results />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
