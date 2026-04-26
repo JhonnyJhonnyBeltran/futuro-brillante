@@ -29,33 +29,33 @@ const OfflineScreen = () => {
         }}
       />
 
-      <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 sm:px-5 md:px-6 py-8 sm:py-10 min-h-[100dvh] safe-top safe-bottom">
-        <div className="anim-fade-up flex flex-col items-center">
+      <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-4 sm:px-5 md:px-6 py-4 sm:py-6">
+        <div className="anim-fade-up flex shrink-0 flex-col items-center">
           <div
             className="flex items-center justify-center mb-6"
             style={{
-              width: 120,
-              height: 120,
+              width: "clamp(96px, 30vw, 120px)",
+              height: "clamp(96px, 30vw, 120px)",
               borderRadius: "9999px",
               background: "var(--gradient-accent)",
               boxShadow: "var(--shadow-card)",
             }}
           >
-            <WifiOff className="text-white" size={56} strokeWidth={2} />
+            <WifiOff className="text-white" size={48} strokeWidth={2} />
           </div>
 
-          <h1 className="text-[1.75rem] font-black leading-tight">
+          <h1 className="text-[clamp(1.4rem,6vw,1.75rem)] font-black leading-tight">
             <span className="text-gradient-accent">Sin conexión</span>
           </h1>
 
-          <p className="text-[15px] text-muted-foreground mt-3 max-w-[300px] leading-relaxed">
+          <p className="text-[15px] text-muted-foreground mt-2 max-w-[300px] leading-relaxed">
             Necesitas conexión a internet para realizar el cuestionario.
             Comprueba tu Wi-Fi o datos móviles e inténtalo de nuevo.
           </p>
         </div>
 
         <div
-          className="w-full mt-10 anim-fade-up"
+          className="w-full mt-6 sm:mt-8 shrink-0 anim-fade-up"
           style={{ animationDelay: "180ms" }}
         >
           <button onClick={retry} className="btn-primary w-full text-base">

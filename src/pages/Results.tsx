@@ -44,17 +44,17 @@ const Results = () => {
   return (
     <div className="mobile-shell">
       <Header />
-      <main className="px-4 sm:px-5 md:px-6 pt-4 sm:pt-6 pb-10 sm:pb-12">
-        <div className="text-center mb-6 anim-fade-up">
-          <h1 className="text-[1.75rem] font-black leading-tight">
+      <main className="px-4 sm:px-5 md:px-6 pt-3 sm:pt-5 pb-6 sm:pb-8">
+        <div className="text-center mb-4 sm:mb-5 anim-fade-up">
+          <h1 className="text-[clamp(1.4rem,6vw,1.75rem)] font-black leading-tight">
             <span className="text-gradient-accent">🎉 ¡Tus resultados!</span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-2 px-2">
+          <p className="text-sm text-muted-foreground mt-1.5 px-2">
             Basándonos en tus respuestas, estos son los ciclos formativos más adecuados para ti
           </p>
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:gap-4">
           {results.map((r, i) => (
             <div key={r.family} className="anim-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
               <ResultCard result={r} rank={i} />
@@ -62,7 +62,7 @@ const Results = () => {
           ))}
         </div>
 
-        <div className="mt-8 flex flex-col gap-3">
+        <div className="mt-5 sm:mt-7 flex flex-col gap-3">
           <button onClick={moreInfo} className="btn-primary w-full">
             Ver más información
           </button>
@@ -73,7 +73,7 @@ const Results = () => {
 
         <button
           onClick={share}
-          className="mt-6 mx-auto flex items-center gap-2 text-sm font-semibold text-gradient-accent"
+          className="mt-4 sm:mt-6 mx-auto flex items-center gap-2 text-sm font-semibold text-gradient-accent"
         >
           <Share2 size={16} />
           Compartir mis resultados

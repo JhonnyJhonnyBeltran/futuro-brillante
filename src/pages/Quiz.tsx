@@ -43,6 +43,11 @@ const Quiz = () => {
       setIndex(nextIdx);
       setAnim(direction === "next" ? "anim-enter-right" : "anim-enter-left");
       transitioning.current = false;
+      const shell = document.querySelector(".mobile-shell");
+      if (shell instanceof HTMLElement) {
+        shell.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
     }, 380);
   };
