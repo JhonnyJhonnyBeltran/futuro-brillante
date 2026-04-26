@@ -69,7 +69,7 @@ const Quiz = () => {
       <Header />
       <ProgressBar current={index + 1} total={QUESTIONS.length} />
 
-      <main className="px-5 pt-4 pb-10">
+      <main className="px-4 sm:px-5 md:px-6 pt-2 sm:pt-4 pb-8 sm:pb-10">
         <QuestionCard
           key={q.id}
           question={q}

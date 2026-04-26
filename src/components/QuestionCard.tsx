@@ -20,9 +20,9 @@ const QuestionCard = ({
 }: Props) => {
   return (
     <div className={`question-card ${animationClass ?? ""}`}>
-      <div className="px-6 pt-7 pb-2">
+      <div className="px-4 sm:px-6 pt-6 sm:pt-7 pb-2">
         <span className="pill-dark mb-4">Pregunta {index + 1}</span>
-        <h2 className="text-[1.125rem] font-bold text-foreground leading-snug mt-4 mb-6">
+        <h2 className="text-[1.05rem] sm:text-[1.125rem] font-bold text-foreground leading-snug mt-4 mb-6">
           {question.text}
         </h2>
         <div className="flex flex-col gap-3">
@@ -37,10 +37,10 @@ const QuestionCard = ({
           ))}
         </div>
       </div>
-      <div className="flex items-center justify-between gap-3 px-6 py-5 mt-3 border-t border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-6 py-4 sm:py-5 mt-3 border-t border-border">
         <button
           type="button"
-          className="btn-secondary"
+          className="btn-secondary tap-fast w-full sm:w-auto"
           onClick={onPrev}
           disabled={!canPrev}
           style={{ opacity: canPrev ? 1 : 0.4 }}
@@ -49,7 +49,7 @@ const QuestionCard = ({
         </button>
         <button
           type="button"
-          className="btn-primary"
+          className="btn-primary tap-fast w-full sm:w-auto"
           onClick={onNext}
           disabled={!selected}
         >

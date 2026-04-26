@@ -29,7 +29,7 @@ const OfflineScreen = () => {
         }}
       />
 
-      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-10 min-h-[100dvh] safe-top safe-bottom">
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 sm:px-5 md:px-6 py-8 sm:py-10 min-h-[100dvh] safe-top safe-bottom">
         <div className="anim-fade-up flex flex-col items-center">
           <div
             className="flex items-center justify-center mb-6"
