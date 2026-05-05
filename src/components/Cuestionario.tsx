@@ -7,13 +7,15 @@ import { calcularRecomendaciones, detectarFamilia } from "@/lib/scoring-v2";
 import Header from "@/components/Header";
 import ResultadosCiclos from "@/components/ResultadosCiclos";
 
-const TOTAL_STEPS = 10;
+const PASOS_FASE1 = 6;
+const PASOS_FASE2 = 4;
 
 // Barra de progreso: línea + puntos + bola deslizante
-const ProgressTrack = ({ step }: { step: number }) => {
-  // La bola va de 7px (centro del primer punto) a calc(100%-7px)
-  const ballLeft = `calc(${step / (TOTAL_STEPS - 1)} * (100% - 14px) + 7px)`;
-  const fillWidth = `calc(${step / (TOTAL_STEPS - 1)} * (100% - 14px))`;
+// step: posición dentro de la fase (0-based), total: puntos de esa fase
+const ProgressTrack = ({ step, total }: { step: number; total: number }) => {
+  const ratio = total > 1 ? step / (total - 1) : 0;
+  const ballLeft = `calc(${ratio} * (100% - 14px) + 7px)`;
+  const fillWidth = `calc(${ratio} * (100% - 14px))`;
 
   return (
     <div className="px-5 sm:px-6 pt-3 pb-4">
@@ -49,7 +51,7 @@ const ProgressTrack = ({ step }: { step: number }) => {
         />
         {/* Puntos fijos */}
         <div className="absolute inset-0 flex items-center justify-between px-[3.5px]">
-          {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+          {Array.from({ length: total }, (_, i) => (
             <div
               key={i}
               style={{
@@ -59,14 +61,8 @@ const ProgressTrack = ({ step }: { step: number }) => {
                 flexShrink: 0,
                 position: "relative",
                 zIndex: 1,
-                background:
-                  i < step
-                    ? "hsl(var(--primary))"
-                    : "white",
-                border:
-                  i < step
-                    ? "none"
-                    : "1.5px solid hsl(var(--border))",
+                background: i < step ? "hsl(var(--primary))" : "white",
+                border: i < step ? "none" : "1.5px solid hsl(var(--border))",
                 transition: "background 300ms ease, border-color 300ms ease",
               }}
             />
@@ -222,23 +218,30 @@ const Cuestionario = () => {
 
   if (!preguntaActual) return null;
 
-  const esFase2 = step >= 6;
-  const fasePaso = esFase2 ? step - 6 + 1 : step + 1;
-  const faseTotal = esFase2 ? 4 : 6;
+  const esFase2 = step >= PASOS_FASE1;
+  const fasoPaso = esFase2 ? step - PASOS_FASE1 : step;
+  const fasoTotal = esFase2 ? PASOS_FASE2 : PASOS_FASE1;
 
   return (
-    <div className="mobile-shell">
+    <div
+      className="mobile-shell"
+      style={{ display: "flex", flexDirection: "column", overflowY: "hidden" }}
+    >
       <Header />
-      <ProgressTrack step={step} />
+      <ProgressTrack step={fasoPaso} total={fasoTotal} />
 
-      <main className="px-4 sm:px-5 md:px-6 pb-8">
+      {/* Zona de pregunta: ocupa el espacio restante y scrollea internamente si hace falta */}
+      <main
+        className="px-4 sm:px-5 md:px-6"
+        style={{ flex: 1, overflowY: "auto", paddingBottom: "1.25rem" }}
+      >
         {/* Indicador de fase */}
         <div className="flex items-center justify-between mb-3">
           <span className="pill-dark">
-            {esFase2 ? "Perfil específico" : "Orientación general"}
+            {esFase2 ? "Orientación específica" : "Orientación general"}
           </span>
           <span className="text-xs text-muted-foreground">
-            {fasePaso} de {faseTotal}
+            {fasoPaso + 1} de {fasoTotal}
           </span>
         </div>
 
@@ -269,7 +272,7 @@ const Cuestionario = () => {
             </div>
           </div>
 
-          {/* Pie de tarjeta: sólo botón Atrás, siempre visible */}
+          {/* Pie de tarjeta: botón Atrás */}
           <div className="px-4 sm:px-6 py-4 mt-3 border-t border-border">
             <button
               type="button"
@@ -282,10 +285,6 @@ const Cuestionario = () => {
             </button>
           </div>
         </div>
-
-        <p className="text-center text-[11px] text-muted-foreground mt-3">
-          Toca una opción para avanzar automáticamente
-        </p>
       </main>
     </div>
   );
