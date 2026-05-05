@@ -1,21 +1,27 @@
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+export const supabase = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
+
+export function getSupabaseClient() {
+  if (!supabase) {
+    throw new Error(
+      "Supabase is not configured yet. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file."
+    );
+  }
+
+  return supabase;
+}
+
 /**
- * Supabase client scaffold (not wired up yet).
- * Replace the placeholders when Lovable Cloud is enabled.
- */
-
-// import { createClient } from "@supabase/supabase-js";
-// export const supabase = createClient(
-//   import.meta.env.VITE_SUPABASE_URL ?? "",
-//   import.meta.env.VITE_SUPABASE_ANON_KEY ?? ""
-// );
-
-export const supabase = null as unknown as {
-  from: (table: string) => unknown;
-};
-
-/**
- * Lightweight analytics helper. Currently logs to console;
- * swap for `supabase.from('events').insert(...)` later.
+ * Lightweight analytics helper. For now it logs locally until
+ * we define the database tables we want to write into.
  */
 export function trackEvent(event: string, data: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
