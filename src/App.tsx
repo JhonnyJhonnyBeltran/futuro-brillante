@@ -11,6 +11,7 @@ const Index = lazy(() => import("./pages/Index.tsx"));
 const Quiz = lazy(() => import("./pages/Quiz.tsx"));
 const Loading = lazy(() => import("./pages/Loading.tsx"));
 const Results = lazy(() => import("./pages/Results.tsx"));
+const CuestionarioPage = lazy(() => import("./pages/CuestionarioPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const AppRoutes = () => {
       <Route path="/quiz" element={<Quiz />} />
       <Route path="/loading" element={<Loading />} />
       <Route path="/results" element={<Results />} />
+      <Route path="/cuestionario" element={<CuestionarioPage />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

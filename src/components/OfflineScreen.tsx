@@ -38,6 +38,8 @@ const OfflineScreen = () => {
               height: "clamp(96px, 30vw, 120px)",
               borderRadius: "9999px",
               background: "var(--gradient-accent)",
+              backgroundSize: "200% 200%",
+              animation: "gradient-flow 4s ease infinite",
               boxShadow: "var(--shadow-card)",
             }}
           >

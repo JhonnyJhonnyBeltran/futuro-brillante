@@ -44,9 +44,9 @@
 
     --radius: 1rem;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, #ff6b35, #ff8f5c);
-    --gradient-accent: linear-gradient(135deg, #ff6b35, #3b82f6);
+    /* Gradients — 3 stops para que el animation de posición sea visible */
+    --gradient-primary: linear-gradient(135deg, #ff8f5c, #ff6b35, #ff8f5c);
+    --gradient-accent: linear-gradient(135deg, #ff6b35, #3b82f6, #ff6b35);
     --gradient-dark: linear-gradient(135deg, #0a0a0a, #1a1a1a);
     --gradient-subtle: linear-gradient(180deg, #ffffff, #f8f9fa);
 
@@ -132,11 +132,13 @@
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 font-semibold text-white;
     background: var(--gradient-primary);
+    background-size: 200% 200%;
     border-radius: 1rem;
     padding: 1rem 1.5rem;
     min-height: 52px;
     box-shadow: var(--shadow-md);
     transition: transform var(--transition-base), box-shadow var(--transition-base), opacity var(--transition-base);
+    animation: gradient-flow 4s ease infinite;
   }
   @media (hover: hover) {
     .btn-primary:hover:not(:disabled) {
@@ -195,6 +197,8 @@
     inset: 0 0 auto 0;
     height: 4px;
     background: var(--gradient-accent);
+    background-size: 200% 200%;
+    animation: gradient-flow 4s ease infinite;
   }
 
   /* Option button */
@@ -277,8 +281,10 @@
   .progress-fill {
     @apply h-full relative;
     background: var(--gradient-accent);
+    background-size: 200% 200%;
     border-radius: 9999px;
     transition: width var(--transition-slow);
+    animation: gradient-flow 4s ease infinite;
   }
   .progress-fill::after {
     content: '';
@@ -290,16 +296,20 @@
 
   .text-gradient-accent {
     background: var(--gradient-accent);
+    background-size: 200% 200%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    animation: gradient-flow 4s ease infinite;
   }
 
   .text-gradient-primary {
     background: var(--gradient-primary);
+    background-size: 200% 200%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    animation: gradient-flow 4s ease infinite;
   }
 
   /* Animated background blobs */
@@ -319,6 +329,11 @@
 }
 
 /* Keyframes */
+@keyframes gradient-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }

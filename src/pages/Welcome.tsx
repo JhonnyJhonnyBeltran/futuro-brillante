@@ -7,7 +7,7 @@ const Welcome = () => {
 
   const start = () => {
     trackEvent("quiz_start");
-    navigate("/quiz");
+    navigate("/cuestionario");
   };
 
   return (
@@ -26,6 +26,8 @@ const Welcome = () => {
               height: "clamp(52px, 16vw, 64px)",
               borderRadius: "1rem",
               background: "var(--gradient-primary)",
+              backgroundSize: "200% 200%",
+              animation: "gradient-flow 4s ease infinite",
               boxShadow: "var(--shadow-orange)",
             }}
           >
@@ -47,6 +49,8 @@ const Welcome = () => {
                 height: "clamp(106px, 33vw, 140px)",
                 borderRadius: "9999px",
                 background: "var(--gradient-accent)",
+                backgroundSize: "200% 200%",
+                animation: "gradient-flow 4s ease infinite",
                 boxShadow: "var(--shadow-card)",
               }}
             >
@@ -59,6 +63,8 @@ const Welcome = () => {
                 height: "clamp(34px, 10vw, 44px)",
                 borderRadius: "9999px",
                 background: "var(--gradient-primary)",
+                backgroundSize: "200% 200%",
+                animation: "gradient-flow 4s ease infinite",
                 boxShadow: "var(--shadow-orange)",
               }}
             >

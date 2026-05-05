@@ -9,6 +9,8 @@ const Header = () => {
             height: 38,
             borderRadius: "0.75rem",
             background: "var(--gradient-primary)",
+            backgroundSize: "200% 200%",
+            animation: "gradient-flow 4s ease infinite",
             boxShadow: "var(--shadow-orange)",
           }}
           aria-hidden
