@@ -6,6 +6,7 @@ import type { CicloConPuntuacion } from "@/data/ciclos";
 import { calcularRecomendaciones, detectarFamilia } from "@/lib/scoring-v2";
 import Header from "@/components/Header";
 import ResultadosCiclos from "@/components/ResultadosCiclos";
+import { submitQuiz } from "@/lib/supabase";
 
 const PASOS_FASE1 = 6;
 const PASOS_FASE2 = 4;
@@ -139,6 +140,37 @@ const Cuestionario = () => {
 
   const respuestaActual = preguntaActual ? respuestas[preguntaActual.id] : undefined;
 
+  const buildStatsPayload = useCallback((questionMap: Record<string, string>) => {
+    const surveyQuestions = [...PREGUNTAS_FASE1, ...(familiaDetectada ? PREGUNTAS_FASE2[familiaDetectada] : [])];
+
+    const questions = surveyQuestions.map((question) => ({
+      question_id: question.id,
+      question_text: question.texto,
+      phase: question.fase,
+      family: question.familia,
+    }));
+
+    const answers = questions
+      .map((question) => {
+        const selectedKey = questionMap[question.question_id];
+        const sourceQuestion = surveyQuestions.find(
+          (item) => item.id === question.question_id,
+        );
+        const selectedOption = sourceQuestion?.opciones.find((option) => option.clave === selectedKey);
+
+        return selectedKey && selectedOption
+          ? {
+              question_id: question.question_id,
+              answer_key: selectedKey,
+              answer_text: selectedOption.texto,
+            }
+          : null;
+      })
+      .filter((value): value is { question_id: string; answer_key: string; answer_text: string } => value !== null);
+
+    return { questions, answers };
+  }, [familiaDetectada]);
+
   const transicionar = useCallback((fn: () => void) => {
     setVisible(false);
     setTimeout(() => {
@@ -165,15 +197,22 @@ const Cuestionario = () => {
             setStep(6);
           });
         } else if (step === 9) {
-          // Fin de Fase 2: calcular resultado
-          const recs = calcularRecomendaciones(nuevasRespuestas);
-          transicionar(() => setResultado(recs));
+          void (async () => {
+            const recs = calcularRecomendaciones(nuevasRespuestas);
+            const mainResult = recs[0]?.nombre ?? "Unknown";
+            const sessionId = sessionStorage.getItem("eligetufuturo_session_id") ?? crypto.randomUUID();
+            const { questions, answers } = buildStatsPayload(nuevasRespuestas);
+
+            sessionStorage.setItem("eligetufuturo_session_id", sessionId);
+            await submitQuiz("cuestionario", questions, answers, mainResult, { session_id: sessionId });
+            transicionar(() => setResultado(recs));
+          })();
         } else {
           transicionar(() => setStep((s) => s + 1));
         }
       }, 150);
     },
-    [step, respuestas, preguntaActual, transicionar],
+    [step, respuestas, preguntaActual, transicionar, buildStatsPayload],
   );
 
   const handleAtras = useCallback(() => {

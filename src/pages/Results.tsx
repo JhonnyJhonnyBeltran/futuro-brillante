@@ -21,6 +21,7 @@ const Results = () => {
 
   const restart = () => {
     sessionStorage.removeItem("eligetufuturo_answers");
+    sessionStorage.removeItem("eligetufuturo_submission_sent");
     navigate("/");
   };
 
