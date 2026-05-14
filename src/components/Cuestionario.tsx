@@ -7,9 +7,37 @@ import { calcularRecomendaciones, detectarFamilia } from "@/lib/scoring-v2";
 import Header from "@/components/Header";
 import ResultadosCiclos from "@/components/ResultadosCiclos";
 import { submitQuiz } from "@/lib/supabase";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const PASOS_FASE1 = 6;
 const PASOS_FASE2 = 4;
+
+const GENDER_OPTIONS = [
+  {
+    value: "Masculino",
+    label: "Masculino",
+  },
+  {
+    value: "Femenino",
+    label: "Femenino",
+  },
+  {
+    value: "Prefiero no responder",
+    label: "Prefiero no responder",
+  },
+  {
+    value: "Otro",
+    label: "Otro",
+  },
+] as const;
 
 const ProgressTrack = ({ step, total }: { step: number; total: number }) => {
   const ratio = total > 1 ? step / (total - 1) : 0;
@@ -121,6 +149,11 @@ const OpcionBtn = ({ clave, emoji, texto, selected, onClick }: OpcionBtnProps) =
 const inputClass =
   "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition";
 
+const selectTriggerClass = cn(
+  "flex min-h-[52px] w-full items-center justify-between rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground shadow-none transition focus:ring-2 focus:ring-primary/20 data-[placeholder]:text-muted-foreground",
+  "hover:border-primary/40",
+);
+
 const Cuestionario = () => {
   const [step, setStep] = useState(0);
   const [respuestas, setRespuestas] = useState<Record<string, string>>({});
@@ -190,6 +223,15 @@ const Cuestionario = () => {
 
   const handlePerfilSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!centro.trim() || !genero || !edad) {
+      toast.error("Por favor, rellena todos los campos obligatorios.", {
+        description: "Necesitamos estos datos para continuar.",
+        duration: 3000,
+      });
+      return;
+    }
+
     startTimeRef.current = Date.now();
     setPerfilEnviado(true);
   };
@@ -312,7 +354,6 @@ const Cuestionario = () => {
                     value={centro}
                     onChange={(e) => setCentro(e.target.value)}
                     placeholder="Nombre de tu centro"
-                    required
                     className={inputClass}
                   />
                 </div>
@@ -321,19 +362,18 @@ const Cuestionario = () => {
                   <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
                     Género *
                   </label>
-                  <select
-                    value={genero}
-                    onChange={(e) => setGenero(e.target.value)}
-                    required
-                    className={inputClass}
-                    style={{ appearance: "none" }}
-                  >
-                    <option value="">Selecciona una opción</option>
-                    <option value="Masculino">Masculino</option>
-                    <option value="Femenino">Femenino</option>
-                    <option value="Prefiero no responder">Prefiero no responder</option>
-                    <option value="Otro">Otro</option>
-                  </select>
+                  <Select value={genero} onValueChange={setGenero}>
+                    <SelectTrigger aria-label="Selector de género" className={selectTriggerClass}>
+                      <SelectValue placeholder="Selecciona una opción" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GENDER_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
@@ -347,7 +387,6 @@ const Cuestionario = () => {
                     placeholder="Tu edad"
                     min={10}
                     max={65}
-                    required
                     className={inputClass}
                   />
                 </div>
