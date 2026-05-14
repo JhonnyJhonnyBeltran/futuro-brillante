@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import type { CicloConPuntuacion, FamiliaKey } from "@/data/ciclos";
 
 const FAMILIA_LABEL: Record<FamiliaKey, string> = {
@@ -33,7 +35,23 @@ const AreaBadge = ({ area }: { area: string }) => (
 );
 
 const ResultadosCiclos = ({ ciclos: resultados, familia, onReset }: Props) => {
+  const navigate = useNavigate();
   const [primero, ...resto] = resultados;
+
+  // Guardar en sessionStorage y navegar a /results
+  useEffect(() => {
+    // Convertir ciclos a formato que Results.tsx espera
+    sessionStorage.setItem(
+      "eligetufuturo_results",
+      JSON.stringify({
+        ciclos: resultados,
+        familia,
+        timestamp: new Date().toISOString(),
+      })
+    );
+    // Navegar automáticamente a la página de resultados
+    navigate("/results");
+  }, [resultados, familia, navigate]);
 
   return (
     <div className="flex flex-col gap-4 px-4 sm:px-5 md:px-6 pt-4 pb-8 anim-fade-up">

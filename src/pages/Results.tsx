@@ -3,34 +3,46 @@ import { useNavigate } from "react-router-dom";
 import { Share2 } from "lucide-react";
 import Header from "@/components/Header";
 import ResultCard from "@/components/ResultCard";
-import { computeResults } from "@/lib/scoring";
+import type { CicloConPuntuacion } from "@/data/ciclos";
 import { trackEvent } from "@/lib/supabase";
+
+interface ResultsData {
+  ciclos: CicloConPuntuacion[];
+  familia: string;
+  timestamp: string;
+}
 
 const Results = () => {
   const navigate = useNavigate();
 
   const results = useMemo(() => {
-    const raw = sessionStorage.getItem("eligetufuturo_answers");
-    const answers = raw ? JSON.parse(raw) : {};
-    return computeResults(answers).slice(0, 3);
-  }, []);
+    const raw = sessionStorage.getItem("eligetufuturo_results");
+    if (!raw) {
+      navigate("/cuestionario");
+      return [];
+    }
+    const data: ResultsData = JSON.parse(raw);
+    return data.ciclos.slice(0, 3);
+  }, [navigate]);
 
   useEffect(() => {
-    trackEvent("results_view", { top: results[0]?.family });
+    if (results.length > 0) {
+      trackEvent("results_view", { top: results[0]?.nombre, familia: results[0]?.area });
+    }
   }, [results]);
 
   const restart = () => {
-    sessionStorage.removeItem("eligetufuturo_answers");
-    sessionStorage.removeItem("eligetufuturo_submission_sent");
+    sessionStorage.removeItem("eligetufuturo_results");
+    sessionStorage.removeItem("eligetufuturo_session_id");
     navigate("/");
   };
 
   const moreInfo = () => {
-    window.open("https://www.cpifpelarenal.es", "_blank", "noopener,noreferrer");
+    window.open("https://fpelarenal.com/", "_blank", "noopener,noreferrer");
   };
 
   const share = async () => {
-    const text = `Mi mejor coincidencia en "Elige tu Futuro" es ${results[0]?.label} (${results[0]?.percentage}%) — CPIFP El Arenal`;
+    const text = `Mi mejor coincidencia en "Elige tu Futuro" es ${results[0]?.nombre} (${results[0]?.nivel}) — CPIFP El Arenal`;
     if (navigator.share) {
       try {
         await navigator.share({ title: "Elige tu Futuro", text, url: window.location.origin });
@@ -57,7 +69,7 @@ const Results = () => {
 
         <div className="flex flex-col gap-3 sm:gap-4">
           {results.map((r, i) => (
-            <div key={r.family} className="anim-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
+            <div key={r.id} className="anim-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
               <ResultCard result={r} rank={i} />
             </div>
           ))}

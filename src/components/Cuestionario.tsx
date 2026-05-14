@@ -296,6 +296,9 @@ const Cuestionario = () => {
             <h2 className="text-[1.05rem] sm:text-[1.125rem] font-bold text-foreground leading-snug mb-5">
               {preguntaActual.texto}
             </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+              No hay respuestas correctas o incorrectas. Elige la opcion que mejor conecte contigo hoy.
+            </p>
 
             <div className="flex flex-col gap-3">
               {preguntaActual.opciones.map((opcion) => (
