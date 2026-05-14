@@ -11,8 +11,6 @@ import { submitQuiz } from "@/lib/supabase";
 const PASOS_FASE1 = 6;
 const PASOS_FASE2 = 4;
 
-// Barra de progreso: línea + puntos + bola deslizante
-// step: posición dentro de la fase (0-based), total: puntos de esa fase
 const ProgressTrack = ({ step, total }: { step: number; total: number }) => {
   const ratio = total > 1 ? step / (total - 1) : 0;
   const ballLeft = `calc(${ratio} * (100% - 14px) + 7px)`;
@@ -21,7 +19,6 @@ const ProgressTrack = ({ step, total }: { step: number; total: number }) => {
   return (
     <div className="px-5 sm:px-6 pt-3 pb-4">
       <div className="relative" style={{ height: 24 }}>
-        {/* Carril base */}
         <div
           style={{
             position: "absolute",
@@ -34,7 +31,6 @@ const ProgressTrack = ({ step, total }: { step: number; total: number }) => {
             borderRadius: 9999,
           }}
         />
-        {/* Relleno animado */}
         <div
           style={{
             position: "absolute",
@@ -50,7 +46,6 @@ const ProgressTrack = ({ step, total }: { step: number; total: number }) => {
             transition: "width 400ms cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         />
-        {/* Puntos fijos */}
         <div className="absolute inset-0 flex items-center justify-between px-[3.5px]">
           {Array.from({ length: total }, (_, i) => (
             <div
@@ -69,7 +64,6 @@ const ProgressTrack = ({ step, total }: { step: number; total: number }) => {
             />
           ))}
         </div>
-        {/* Bola deslizante */}
         <div
           style={{
             position: "absolute",
@@ -124,6 +118,9 @@ const OpcionBtn = ({ clave, emoji, texto, selected, onClick }: OpcionBtnProps) =
   </button>
 );
 
+const inputClass =
+  "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition";
+
 const Cuestionario = () => {
   const [step, setStep] = useState(0);
   const [respuestas, setRespuestas] = useState<Record<string, string>>({});
@@ -131,6 +128,17 @@ const Cuestionario = () => {
   const [resultado, setResultado] = useState<CicloConPuntuacion[] | null>(null);
   const [visible, setVisible] = useState(true);
   const bloqueado = useRef(false);
+
+  // Perfil previo al cuestionario
+  const [perfilEnviado, setPerfilEnviado] = useState(false);
+  const [centro, setCentro] = useState("");
+  const [genero, setGenero] = useState("");
+  const [edad, setEdad] = useState("");
+
+  // Datos del envío
+  const [submissionId, setSubmissionId] = useState("");
+  const [duracionSegundos, setDuracionSegundos] = useState<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
 
   const preguntaActual = useMemo(() => {
     if (step < 6) return PREGUNTAS_FASE1[step];
@@ -180,6 +188,12 @@ const Cuestionario = () => {
     }, 200);
   }, []);
 
+  const handlePerfilSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    startTimeRef.current = Date.now();
+    setPerfilEnviado(true);
+  };
+
   const handleSelect = useCallback(
     (clave: string) => {
       if (bloqueado.current || !preguntaActual) return;
@@ -190,7 +204,6 @@ const Cuestionario = () => {
 
       setTimeout(() => {
         if (step === 5) {
-          // Fin de Fase 1: detectar familia y avanzar a Fase 2
           const familia = detectarFamilia(nuevasRespuestas);
           transicionar(() => {
             setFamiliaDetectada(familia);
@@ -199,12 +212,30 @@ const Cuestionario = () => {
         } else if (step === 9) {
           void (async () => {
             const recs = calcularRecomendaciones(nuevasRespuestas);
-            const mainResult = recs[0]?.nombre ?? "Unknown";
+            const duracion = startTimeRef.current
+              ? Math.round((Date.now() - startTimeRef.current) / 1000)
+              : null;
+
             const sessionId = sessionStorage.getItem("eligetufuturo_session_id") ?? crypto.randomUUID();
+            sessionStorage.setItem("eligetufuturo_session_id", sessionId);
+
             const { questions, answers } = buildStatsPayload(nuevasRespuestas);
 
-            sessionStorage.setItem("eligetufuturo_session_id", sessionId);
-            await submitQuiz("cuestionario", questions, answers, mainResult, { session_id: sessionId });
+            const result = await submitQuiz({
+              quizId: "cuestionario",
+              questions,
+              answers,
+              results: recs.slice(0, 3).map((r) => r.nombre),
+              centro,
+              genero,
+              edad,
+              durationSeconds: duracion,
+              metadata: { session_id: sessionId },
+            });
+
+            setSubmissionId(result.submissionId ?? "");
+            setDuracionSegundos(duracion);
+
             transicionar(() => setResultado(recs));
           })();
         } else {
@@ -212,7 +243,7 @@ const Cuestionario = () => {
         }
       }, 150);
     },
-    [step, respuestas, preguntaActual, transicionar, buildStatsPayload],
+    [step, respuestas, preguntaActual, transicionar, buildStatsPayload, centro, genero, edad],
   );
 
   const handleAtras = useCallback(() => {
@@ -240,7 +271,99 @@ const Cuestionario = () => {
     setResultado(null);
     setVisible(true);
     bloqueado.current = false;
+    setPerfilEnviado(false);
+    setCentro("");
+    setGenero("");
+    setEdad("");
+    setSubmissionId("");
+    setDuracionSegundos(null);
+    startTimeRef.current = null;
   }, []);
+
+  // Pantalla de perfil previo al cuestionario
+  if (!perfilEnviado) {
+    return (
+      <div className="mobile-shell" style={{ display: "flex", flexDirection: "column" }}>
+        <Header />
+        <main
+          className="px-4 sm:px-5 md:px-6 pt-4 pb-6"
+          style={{ flex: 1, overflowY: "auto" }}
+        >
+          <div className="text-center mb-5 anim-fade-up">
+            <span className="pill-dark mb-3 inline-block">Antes de empezar</span>
+            <h2 className="text-[1.15rem] sm:text-[1.25rem] font-black text-foreground leading-tight mt-2">
+              Cuéntanos un poco sobre ti
+            </h2>
+            <p className="text-sm text-muted-foreground mt-2 px-2">
+              Esta información es anónima y nos ayuda a mejorar la orientación vocacional.
+            </p>
+          </div>
+
+          <form onSubmit={handlePerfilSubmit} className="anim-fade-up" style={{ animationDelay: "80ms" }}>
+            <div className="question-card">
+              <div className="px-5 pt-5 pb-2 flex flex-col gap-4">
+
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+                    Centro educativo *
+                  </label>
+                  <input
+                    type="text"
+                    value={centro}
+                    onChange={(e) => setCentro(e.target.value)}
+                    placeholder="Nombre de tu centro"
+                    required
+                    className={inputClass}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+                    Género *
+                  </label>
+                  <select
+                    value={genero}
+                    onChange={(e) => setGenero(e.target.value)}
+                    required
+                    className={inputClass}
+                    style={{ appearance: "none" }}
+                  >
+                    <option value="">Selecciona una opción</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Femenino">Femenino</option>
+                    <option value="Prefiero no responder">Prefiero no responder</option>
+                    <option value="Otro">Otro</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+                    Edad *
+                  </label>
+                  <input
+                    type="number"
+                    value={edad}
+                    onChange={(e) => setEdad(e.target.value)}
+                    placeholder="Tu edad"
+                    min={10}
+                    max={65}
+                    required
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              <div className="px-5 py-4 mt-2 border-t border-border">
+                <button type="submit" className="btn-primary w-full tap-fast">
+                  Comenzar el test
+                </button>
+              </div>
+            </div>
+          </form>
+        </main>
+      </div>
+    );
+  }
 
   if (resultado && familiaDetectada) {
     return (
@@ -250,6 +373,9 @@ const Cuestionario = () => {
           ciclos={resultado}
           familia={familiaDetectada}
           onReset={handleReset}
+          perfil={{ centro, genero, edad }}
+          submissionId={submissionId}
+          duracionSegundos={duracionSegundos}
         />
       </div>
     );
@@ -269,12 +395,10 @@ const Cuestionario = () => {
       <Header />
       <ProgressTrack step={fasoPaso} total={fasoTotal} />
 
-      {/* Zona de pregunta: ocupa el espacio restante y scrollea internamente si hace falta */}
       <main
         className="px-4 sm:px-5 md:px-6"
         style={{ flex: 1, overflowY: "auto", paddingBottom: "1.25rem" }}
       >
-        {/* Indicador de fase */}
         <div className="flex items-center justify-between mb-3">
           <span className="pill-dark">
             {esFase2 ? "Orientación específica" : "Orientación general"}
@@ -284,7 +408,6 @@ const Cuestionario = () => {
           </span>
         </div>
 
-        {/* Tarjeta de pregunta */}
         <div
           className="question-card"
           style={{
@@ -314,7 +437,6 @@ const Cuestionario = () => {
             </div>
           </div>
 
-          {/* Pie de tarjeta: botón Atrás */}
           <div className="px-4 sm:px-6 py-4 mt-3 border-t border-border">
             <button
               type="button"

@@ -20,30 +20,75 @@ export async function trackEvent(event: string, data: Record<string, unknown> = 
   console.log("[trackEvent]", event, data);
 }
 
-export async function submitQuiz(
-  quizId: string,
+export interface SubmitQuizPayload {
+  quizId: string;
   questions: Array<{
     question_id: string;
     question_text: string;
     phase: number;
     family: string | null;
-  }>,
+  }>;
   answers: Array<{
     question_id: string;
     answer_key: string;
     answer_text: string;
-  }>,
-  mainResult: string,
-  metadata: Record<string, unknown> = {}
-) {
-  try {
-    const payload = { quiz_id: quizId, questions, answers, main_result: mainResult, metadata };
+  }>;
+  results: string[];
+  centro: string;
+  genero: string;
+  edad: string;
+  durationSeconds: number | null;
+  metadata?: Record<string, unknown>;
+}
 
-    const { data, error } = await supabase.from("quiz_submissions").insert([payload]);
-    if (error) {
-      return { success: false, error };
-    }
-    return { success: true, data };
+export interface SubmitQuizResult {
+  success: boolean;
+  submissionId?: string;
+  reportUrl?: string;
+  error?: unknown;
+}
+
+export async function submitRaffle(payload: {
+  nombreCompleto: string;
+  email: string;
+}): Promise<{ success: boolean; error?: unknown }> {
+  try {
+    const { error } = await supabase.from("raffle_entries").insert([{
+      nombre_completo: payload.nombreCompleto,
+      email: payload.email,
+    }]);
+    if (error) return { success: false, error };
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err };
+  }
+}
+
+export async function submitQuiz(payload: SubmitQuizPayload): Promise<SubmitQuizResult> {
+  try {
+    const submissionId = crypto.randomUUID();
+    const reportUrl = `${window.location.origin}/informe/${submissionId}`;
+
+    const dbPayload = {
+      id: submissionId,
+      quiz_id: payload.quizId,
+      questions: payload.questions,
+      answers: payload.answers,
+      main_result: payload.results[0] ?? "Unknown",
+      result_2: payload.results[1] ?? null,
+      result_3: payload.results[2] ?? null,
+      centro: payload.centro || null,
+      genero: payload.genero || null,
+      edad: payload.edad || null,
+      duration_seconds: payload.durationSeconds,
+      report_url: reportUrl,
+      metadata: payload.metadata ?? {},
+    };
+
+    const { error } = await supabase.from("quiz_submissions").insert([dbPayload]);
+    if (error) return { success: false, error };
+
+    return { success: true, submissionId, reportUrl };
   } catch (err) {
     return { success: false, error: err };
   }

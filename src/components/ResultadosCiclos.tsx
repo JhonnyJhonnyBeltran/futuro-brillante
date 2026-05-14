@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { CicloConPuntuacion, FamiliaKey } from "@/data/ciclos";
 
-const FAMILIA_LABEL: Record<FamiliaKey, string> = {
+export const FAMILIA_LABEL: Record<FamiliaKey, string> = {
   FABRICACION: "Fabricación Mecánica",
   ELECTRICA: "Electricidad y Electrónica",
   CONSTRUCCION: "Edificación y Obra Civil",
@@ -14,6 +14,9 @@ interface Props {
   ciclos: CicloConPuntuacion[];
   familia: FamiliaKey;
   onReset: () => void;
+  perfil: { centro: string; genero: string; edad: string };
+  submissionId: string;
+  duracionSegundos: number | null;
 }
 
 const NivelBadge = ({ nivel }: { nivel: string }) => (
@@ -34,29 +37,28 @@ const AreaBadge = ({ area }: { area: string }) => (
   </span>
 );
 
-const ResultadosCiclos = ({ ciclos: resultados, familia, onReset }: Props) => {
+const ResultadosCiclos = ({ ciclos: resultados, familia, onReset, perfil, submissionId, duracionSegundos }: Props) => {
   const navigate = useNavigate();
   const [primero, ...resto] = resultados;
 
-  // Guardar en sessionStorage y navegar a /results
   useEffect(() => {
-    // Convertir ciclos a formato que Results.tsx espera
     sessionStorage.setItem(
       "eligetufuturo_results",
       JSON.stringify({
         ciclos: resultados,
         familia,
         timestamp: new Date().toISOString(),
+        perfil,
+        submissionId,
+        duracionSegundos,
       })
     );
-    // Navegar automáticamente a la página de resultados
     navigate("/results");
-  }, [resultados, familia, navigate]);
+  }, [resultados, familia, navigate, perfil, submissionId, duracionSegundos]);
 
   return (
     <div className="flex flex-col gap-4 px-4 sm:px-5 md:px-6 pt-4 pb-8 anim-fade-up">
 
-      {/* Etiqueta de familia detectada */}
       <div
         className="anim-fade-up"
         style={{
@@ -77,7 +79,6 @@ const ResultadosCiclos = ({ ciclos: resultados, familia, onReset }: Props) => {
         </p>
       </div>
 
-      {/* Cabecera */}
       <div className="text-center">
         <h2 className="text-[clamp(1.1rem,5vw,1.35rem)] font-black leading-tight text-foreground">
           Ciclos formativos recomendados
@@ -87,7 +88,6 @@ const ResultadosCiclos = ({ ciclos: resultados, familia, onReset }: Props) => {
         </p>
       </div>
 
-      {/* Tarjeta principal */}
       {primero && (
         <div
           className="question-card anim-fade-up"
@@ -114,7 +114,6 @@ const ResultadosCiclos = ({ ciclos: resultados, familia, onReset }: Props) => {
         </div>
       )}
 
-      {/* Tarjetas secundarias */}
       {resto.map((ciclo, i) => (
         <div
           key={ciclo.id}

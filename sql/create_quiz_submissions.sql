@@ -15,54 +15,64 @@ CREATE TABLE IF NOT EXISTS public.quiz_submissions (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- Compatibilidad con instalaciones donde la tabla ya existía sin estas columnas
 ALTER TABLE public.quiz_submissions
 ADD COLUMN IF NOT EXISTS questions jsonb NOT NULL DEFAULT '[]'::jsonb;
 
--- Compatibilidad con instalaciones donde la tabla ya existia sin esta columna
 ALTER TABLE public.quiz_submissions
 ADD COLUMN IF NOT EXISTS main_result text NOT NULL DEFAULT 'Unknown';
 
--- 3) Índices útiles
+-- 3) Nuevas columnas (v2): top 3 resultados, perfil del alumno, tiempo y URL de informe
+ALTER TABLE public.quiz_submissions ADD COLUMN IF NOT EXISTS result_2 text;
+ALTER TABLE public.quiz_submissions ADD COLUMN IF NOT EXISTS result_3 text;
+ALTER TABLE public.quiz_submissions ADD COLUMN IF NOT EXISTS centro text;
+ALTER TABLE public.quiz_submissions ADD COLUMN IF NOT EXISTS genero text;
+ALTER TABLE public.quiz_submissions ADD COLUMN IF NOT EXISTS edad text;
+ALTER TABLE public.quiz_submissions ADD COLUMN IF NOT EXISTS duration_seconds integer;
+ALTER TABLE public.quiz_submissions ADD COLUMN IF NOT EXISTS report_url text;
+
+-- 4) Índices útiles
 CREATE INDEX IF NOT EXISTS idx_quiz_submissions_quiz_id ON public.quiz_submissions (quiz_id);
 CREATE INDEX IF NOT EXISTS idx_quiz_submissions_created_at ON public.quiz_submissions (created_at);
+CREATE INDEX IF NOT EXISTS idx_quiz_submissions_genero ON public.quiz_submissions (genero);
+CREATE INDEX IF NOT EXISTS idx_quiz_submissions_centro ON public.quiz_submissions (centro);
 
--- 4) Habilitar Row Level Security para controlar acceso
+-- 5) Habilitar Row Level Security para controlar acceso
 ALTER TABLE public.quiz_submissions ENABLE ROW LEVEL SECURITY;
 
--- 5) Política: permitir INSERTS anónimos desde la role `anon` (clave: anon key en Supabase)
--- Esto permite que clientes que usen la "anon" key puedan enviar respuestas.
-CREATE POLICY IF NOT EXISTS "Allow anonymous inserts"
+-- 6) Política: permitir INSERTS anónimos desde la role `anon` (clave: anon key en Supabase)
+DROP POLICY IF EXISTS "Allow anonymous inserts" ON public.quiz_submissions;
+CREATE POLICY "Allow anonymous inserts"
   ON public.quiz_submissions
   FOR INSERT
   TO anon
   WITH CHECK (true);
 
--- 6) Política: permitir INSERTS para usuarios autenticados (opcional)
-CREATE POLICY IF NOT EXISTS "Allow authenticated inserts"
+-- 7) Política: permitir INSERTS para usuarios autenticados
+DROP POLICY IF EXISTS "Allow authenticated inserts" ON public.quiz_submissions;
+CREATE POLICY "Allow authenticated inserts"
   ON public.quiz_submissions
   FOR INSERT
   TO authenticated
   WITH CHECK (true);
 
--- 7) (Opcional) permitir SELECT solo a usuarios autenticados
--- Si prefieres que solo tu backend o usuarios autenticados lean los resultados,
--- habilita esta política. Si no la creas, por defecto nadie podrá seleccionar cuando RLS esté activo.
-CREATE POLICY IF NOT EXISTS "Allow authenticated select"
+-- 8) Política: permitir SELECT para usuarios autenticados (panel de datos)
+DROP POLICY IF EXISTS "Allow authenticated select" ON public.quiz_submissions;
+CREATE POLICY "Allow authenticated select"
   ON public.quiz_submissions
   FOR SELECT
   TO authenticated
   USING (true);
 
--- 8) Concesiones mínimas (por compatibilidad). Las policies son las que controlan el acceso;
--- estas GRANT ayudan en algunos setups, pero no sustituyen a las policies.
+-- 9) Concesiones mínimas
 GRANT INSERT ON public.quiz_submissions TO anon;
 GRANT INSERT, SELECT ON public.quiz_submissions TO authenticated;
 
 -- NOTAS DE USO:
--- - Insertar desde cliente (JavaScript) usando la anon key de Supabase:
---   supabase.from('quiz_submissions').insert([{ quiz_id: 'quiz1', answers: {...}, metadata: {...} }])
--- - Para mantener anonimato: NO almacenar campos identificables (email, ip, auth.uid) en `answers` o `metadata`.
--- - Si necesitas agrupar respuestas del mismo usuario sin identificarlo, genera un `session_id` en el cliente
---   y envíalo como parte de `metadata` (uuid), sabiendo que sigue siendo anónimo si no se vincula a PII.
+-- - main_result = primer resultado (mayor afinidad), result_2 y result_3 los siguientes.
+-- - centro, genero, edad: recogidos en el formulario previo al cuestionario.
+-- - duration_seconds: segundos desde que el alumno empieza la primera pregunta hasta que ve resultados.
+-- - report_url: URL de la página /informe/{id} generada en el momento del envío.
+-- - Para mantener anonimato: NO almacenar campos identificables (email, ip, auth.uid).
 
 -- FIN
