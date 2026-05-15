@@ -117,13 +117,12 @@ const ProgressTrack = ({ step, total }: { step: number; total: number }) => {
 
 interface OpcionBtnProps {
   clave: string;
-  emoji: string;
   texto: string;
   selected: boolean;
   onClick: () => void;
 }
 
-const OpcionBtn = ({ clave, emoji, texto, selected, onClick }: OpcionBtnProps) => (
+const OpcionBtn = ({ clave, texto, selected, onClick }: OpcionBtnProps) => (
   <button
     type="button"
     className={`option-btn tap-fast${selected ? " selected" : ""}`}
@@ -132,13 +131,6 @@ const OpcionBtn = ({ clave, emoji, texto, selected, onClick }: OpcionBtnProps) =
     onClick={onClick}
   >
     <span className="overlay" />
-    <span
-      className="shrink-0 relative z-10"
-      style={{ fontSize: "1.35rem", lineHeight: 1 }}
-      aria-hidden
-    >
-      {emoji}
-    </span>
     <span className="option-text font-medium text-[15px] text-foreground leading-snug flex-1 text-center relative z-10">
       {texto}
     </span>
@@ -227,7 +219,8 @@ const Cuestionario = () => {
     if (!centro.trim() || !genero || !edad) {
       toast.error("Por favor, rellena todos los campos obligatorios.", {
         description: "Necesitamos estos datos para continuar.",
-        duration: 3000,
+        duration: 1500,
+        className: "pointer-events-none",
       });
       return;
     }
@@ -467,7 +460,6 @@ const Cuestionario = () => {
                 <OpcionBtn
                   key={opcion.clave}
                   clave={opcion.clave}
-                  emoji={opcion.emoji}
                   texto={opcion.texto}
                   selected={respuestaActual === opcion.clave}
                   onClick={() => handleSelect(opcion.clave)}

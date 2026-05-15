@@ -90,16 +90,19 @@ function generarInformeHTML(data: ResultsData): string {
       color: #222;
       padding: 32px 16px;
     }
+    /* A4 layout at 96dpi: 8.27in * 96 = 794px width */
     .page {
-      max-width: 680px;
+      width: 794px;
       margin: 0 auto;
       background: #fff;
-      border-radius: 16px;
+      border-radius: 0.5rem;
       overflow: hidden;
-      box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+      box-shadow: none;
+      padding: 24px 0;
     }
+    /* Stronger app gradient used in header and accents */
     .header {
-      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+      background: linear-gradient(90deg, #ff6b35 0%, #ff8a50 40%, #f7931e 100%);
       padding: 28px 32px 24px;
       color: #fff;
     }
@@ -108,6 +111,8 @@ function generarInformeHTML(data: ResultsData): string {
       justify-content: space-between;
       align-items: flex-start;
     }
+    /* Vocational area row centered vertically and more prominent */
+    .familia-row { display:flex; align-items:center; justify-content:flex-start; gap:18px; margin: 18px 0; }
     .header h1 { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
     .header .subtitle { font-size: 13px; opacity: 0.88; margin-top: 4px; }
     .header .centro-tag {
@@ -118,7 +123,7 @@ function generarInformeHTML(data: ResultsData): string {
       line-height: 1.4;
     }
 
-    .body { padding: 28px 32px; }
+    .body { padding: 20px 36px; }
 
     .section-title {
       font-size: 11px;
@@ -135,13 +140,17 @@ function generarInformeHTML(data: ResultsData): string {
     td { padding: 5px 0; }
 
     .familia-badge {
-      display: inline-block;
-      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(90deg, #ff6b35 0%, #ff8a50 50%, #f7931e 100%);
       color: #fff;
       font-size: 15px;
       font-weight: 900;
-      border-radius: 10px;
-      padding: 8px 18px;
+      border-radius: 12px;
+      padding: 10px 20px;
+      box-shadow: 0 6px 18px rgba(247,147,30,0.12);
+      transform: translateY(0);
     }
 
     .ciclo {
@@ -151,8 +160,21 @@ function generarInformeHTML(data: ResultsData): string {
       margin-bottom: 12px;
     }
     .ciclo-top {
-      border-color: #ff6b35;
-      background: #fff8f5;
+      border-color: transparent;
+      background: linear-gradient(180deg, #fff8f5 0%, #fff 100%);
+      box-shadow: 0 2px 0 rgba(255,107,53,0.02), 0 6px 18px rgba(255,107,53,0.06) inset;
+      position: relative;
+    }
+    .ciclo-top:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 4px;
+      width: 100%;
+      background: linear-gradient(90deg,#ff6b35,#ff8a50,#f7931e);
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
     }
     .ciclo-label {
       font-size: 10px;
@@ -196,7 +218,7 @@ function generarInformeHTML(data: ResultsData): string {
 
     .print-btn {
       display: block;
-      width: 200px;
+      width: 220px;
       margin: 24px auto 0;
       padding: 12px 0;
       background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
@@ -254,8 +276,6 @@ function generarInformeHTML(data: ResultsData): string {
       Programa Dualiza-Orienta 2025-2026.
     </div>
   </div>
-
-  <button class="print-btn" onclick="window.print()">Guardar / Imprimir PDF</button>
 </body>
 </html>`;
 }
@@ -290,18 +310,104 @@ const Results = () => {
 
   const descargarInforme = () => {
     if (!data) return;
-    const html = generarInformeHTML(data);
-    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const win = window.open(url, "_blank", "noopener,noreferrer");
-    if (!win) {
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "informe-descubre-t.html";
-      a.click();
-    }
-    trackEvent("report_download", { submission_id: data.submissionId });
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    void (async () => {
+      try {
+        const html = generarInformeHTML(data);
+
+        // Create an offscreen container and inject the HTML
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "fixed";
+        wrapper.style.left = "-9999px";
+        wrapper.style.top = "0";
+        wrapper.style.width = "794px"; // A4 width at 96dpi
+        wrapper.style.height = "auto";
+        wrapper.innerHTML = html;
+        document.body.appendChild(wrapper);
+        const [{ default: html2canvas }, { PDFDocument }] = await Promise.all([
+          import("html2canvas"),
+          import("pdf-lib"),
+        ]);
+
+        // Wait a tick for fonts/images to load
+        await new Promise((r) => setTimeout(r, 300));
+
+        const canvas = await html2canvas(wrapper, { scale: 2, useCORS: true });
+
+        // PDF page dimensions in points (A4)
+        const pagePtWidth = 595.28;
+        const pagePtHeight = 841.89;
+
+        const pdfDoc = await PDFDocument.create();
+
+        const sourceCanvas = canvas;
+        const imgPxWidth = sourceCanvas.width;
+        const imgPxHeight = sourceCanvas.height;
+
+        // pixels per PDF point
+        const pxPerPt = imgPxWidth / pagePtWidth;
+        const pagePxHeight = Math.floor(pagePtHeight * pxPerPt);
+
+        let y = 0;
+        const ctx = sourceCanvas.getContext("2d");
+        while (y < imgPxHeight) {
+          const sliceH = Math.min(pagePxHeight, imgPxHeight - y);
+          const pageCanvas = document.createElement("canvas");
+          pageCanvas.width = imgPxWidth;
+          pageCanvas.height = sliceH;
+          const pCtx = pageCanvas.getContext("2d");
+          pCtx.drawImage(sourceCanvas, 0, y, imgPxWidth, sliceH, 0, 0, imgPxWidth, sliceH);
+
+          const pageDataUrl = pageCanvas.toDataURL("image/png");
+          const pagePngBytes = await (await fetch(pageDataUrl)).arrayBuffer();
+          const pageImage = await pdfDoc.embedPng(pagePngBytes);
+
+          const page = pdfDoc.addPage([pagePtWidth, pagePtHeight]);
+          const scaledHeight = (pagePtWidth / pageImage.width) * pageImage.height;
+          page.drawImage(pageImage, {
+            x: 0,
+            y: pagePtHeight - scaledHeight,
+            width: pagePtWidth,
+            height: scaledHeight,
+          });
+
+          y += sliceH;
+        }
+
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes as unknown as ArrayBuffer], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "informe-descubre-t.pdf";
+        a.click();
+
+        // cleanup
+        setTimeout(() => {
+          try {
+            document.body.removeChild(wrapper);
+          } catch (err) {
+            // Non-fatal cleanup error — log for debugging
+            console.warn("Failed to remove temp wrapper", err);
+          }
+          URL.revokeObjectURL(url);
+        }, 300);
+
+        trackEvent("report_download", { submission_id: data.submissionId });
+      } catch (err) {
+        // fallback: open HTML if PDF generation fails
+        const html = generarInformeHTML(data);
+        const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const win = window.open(url, "_blank", "noopener,noreferrer");
+        if (!win) {
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "informe-descubre-t.html";
+          a.click();
+        }
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      }
+    })();
   };
 
   return (

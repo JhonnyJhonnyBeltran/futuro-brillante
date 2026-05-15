@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 import { submitRaffle } from "@/lib/supabase";
 
 interface Props {
@@ -11,26 +12,80 @@ interface Props {
 const inputClass =
   "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition";
 
+const CLOSE_ANIMATION_MS = 260;
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
+  const [mounted, setMounted] = useState(open);
+  const [closing, setClosing] = useState(false);
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [acepta, setAcepta] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  if (!open) return null;
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      setClosing(true);
+      requestAnimationFrame(() => setClosing(false));
+      return;
+    }
+
+    if (!mounted) return;
+
+    setClosing(true);
+    const timeoutId = window.setTimeout(() => {
+      setMounted(false);
+    }, CLOSE_ANIMATION_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [open, mounted]);
+
+  if (!mounted) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!acepta) return;
+    const nombreLimpio = nombre.trim();
+    const emailLimpio = email.trim();
+    const errores: string[] = [];
+
+    if (!nombreLimpio) {
+      errores.push("nombre completo");
+    }
+
+    if (!emailLimpio) {
+      errores.push("correo electrónico");
+    }
+
+    if (!EMAIL_REGEX.test(emailLimpio)) {
+      errores.push("correo electrónico válido");
+    }
+
+    if (!acepta) {
+      errores.push("aceptación del tratamiento de datos");
+    }
+
+    if (errores.length > 0) {
+      toast.error("Revisa el formulario antes de continuar.", {
+        description: `Faltan o son incorrectos: ${errores.join(", ")}.`,
+        duration: 3000,
+        className: "pointer-events-none",
+      });
+      return;
+    }
+
     setEnviando(true);
-    setErrorMsg("");
-    const result = await submitRaffle({ nombreCompleto: nombre, email });
+    const result = await submitRaffle({ nombreCompleto: nombreLimpio, email: emailLimpio });
     setEnviando(false);
     if (result.success) {
       onSuccess();
     } else {
-      setErrorMsg("Ha ocurrido un error. Por favor, inténtalo de nuevo.");
+      toast.error("Ha ocurrido un error. Por favor, inténtalo de nuevo.", {
+        duration: 3000,
+        className: "pointer-events-none",
+      });
     }
   };
 
@@ -38,13 +93,19 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${
+          closing ? "opacity-0" : "opacity-100"
+        }`}
         onClick={onClose}
       />
 
       {/* Panel */}
       <div
-        className="relative w-full sm:max-w-md bg-white sm:rounded-2xl shadow-2xl overflow-hidden"
+        className={`relative w-full sm:max-w-md bg-white sm:rounded-2xl shadow-2xl overflow-hidden transform-gpu transition-all duration-300 ease-out ${
+          closing
+            ? "translate-y-full opacity-0 sm:translate-y-12"
+            : "translate-y-0 opacity-100"
+        }`}
         style={{ maxHeight: "95dvh", overflowY: "auto" }}
       >
         {/* Cabecera con gradiente */}
@@ -99,7 +160,7 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
           </div>
 
           {/* Formulario */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3">
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
                 Nombre completo *
@@ -109,7 +170,6 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 placeholder="Tu nombre y apellidos"
-                required
                 className={inputClass}
               />
             </div>
@@ -123,7 +183,6 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@correo.com"
-                required
                 className={inputClass}
               />
             </div>
@@ -145,10 +204,6 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
                 relacionarse con estos datos.
               </span>
             </label>
-
-            {errorMsg && (
-              <p className="text-xs text-red-500 text-center">{errorMsg}</p>
-            )}
 
             <button
               type="submit"
