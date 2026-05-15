@@ -10,6 +10,7 @@ export interface ScoreGrid {
 export interface Ciclo {
   id: string;
   nombre: string;
+  nombreGenerico: string;
   nivel: string;
   area: string;
   descripcion: string;
@@ -30,6 +31,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "fpb_fabricacion",
     nombre: "FPB Fabricación y Montaje",
+    nombreGenerico: "Taller y Herramienta",
     nivel: "Grado Básico",
     area: "Fabricación",
     descripcion: "Montas y fabricas piezas en taller bajo supervisión directa.",
@@ -44,6 +46,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "gm_mecanizado",
     nombre: "GM Mecanizado",
+    nombreGenerico: "Precisión en Metal",
     nivel: "Grado Medio",
     area: "Fabricación",
     descripcion: "Fabricas piezas de precisión con tornos y fresadoras.",
@@ -58,6 +61,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "gs_diseno_fabricacion",
     nombre: "GS Diseño en Fabricación Mecánica",
+    nombreGenerico: "Del Plano a la Pieza",
     nivel: "Grado Superior",
     area: "Fabricación",
     descripcion: "Diseñas y programas procesos de fabricación con software CAD/CAM.",
@@ -72,6 +76,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "gs_prog_produccion",
     nombre: "GS Programación de la Producción Mecánica",
+    nombreGenerico: "Orquestando la Fábrica",
     nivel: "Grado Superior",
     area: "Fabricación / Gestión",
     descripcion: "Planificas cuándo y cómo se fabrica cada pieza en la empresa.",
@@ -92,6 +97,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "ce_fabricacion_aditiva",
     nombre: "CE Fabricación Aditiva",
+    nombreGenerico: "Imprime el Futuro",
     nivel: "Certificado de Especialidad",
     area: "Fabricación / Digital",
     descripcion: "Diseñas y fabricas objetos con impresión 3D y tecnología digital.",
@@ -112,6 +118,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "fpb_electricidad",
     nombre: "FPB Electricidad y Electrónica",
+    nombreGenerico: "Corriente y Circuitos",
     nivel: "Grado Básico",
     area: "Eléctrica",
     descripcion: "Realizas instalaciones eléctricas básicas en edificios bajo supervisión.",
@@ -126,6 +133,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "gm_instalaciones",
     nombre: "GM Instalaciones Eléctricas y Automáticas",
+    nombreGenerico: "Luz en Cada Espacio",
     nivel: "Grado Medio",
     area: "Eléctrica",
     descripcion: "Instalas y mantienes sistemas eléctricos en edificios e industria.",
@@ -140,6 +148,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "gm_electro",
     nombre: "GM Mantenimiento Electromecánico",
+    nombreGenerico: "Motor y Voltaje",
     nivel: "Grado Medio",
     area: "Eléctrica / Mecánica",
     descripcion: "Mantienes y reparas máquinas industriales que combinan motor y electricidad.",
@@ -160,6 +169,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "gs_mecatronica",
     nombre: "GS Mecatrónica Industrial",
+    nombreGenerico: "Máquinas Inteligentes",
     nivel: "Grado Superior",
     area: "Eléctrica / Digital",
     descripcion: "Integras mecánica, electricidad e informática para mantener sistemas industriales complejos.",
@@ -180,6 +190,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "gs_automatizacion",
     nombre: "GS Automatización y Robótica Industrial",
+    nombreGenerico: "Programando Robots",
     nivel: "Grado Superior",
     area: "Digital / Eléctrica",
     descripcion: "Programas robots y sistemas automatizados en entornos de Industria 4.0.",
@@ -200,6 +211,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "gs_sistemas",
     nombre: "GS Sistemas Electrotécnicos y Automatizados",
+    nombreGenerico: "Diseña la Red Eléctrica",
     nivel: "Grado Superior",
     area: "Eléctrica",
     descripcion: "Diseñas y supervisas instalaciones eléctricas, telecomunicaciones y automatización.",
@@ -214,6 +226,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "gs_edificacion",
     nombre: "GS Proyectos de Edificación",
+    nombreGenerico: "Del Plano al Edificio",
     nivel: "Grado Superior",
     area: "Construcción",
     descripcion: "Elaboras planos, presupuestos y documentación técnica de proyectos de obra.",
@@ -228,6 +241,7 @@ export const ciclos: Ciclo[] = [
   {
     id: "gs_prl",
     nombre: "GS Prevención de Riesgos Laborales",
+    nombreGenerico: "Seguridad para Todos",
     nivel: "Grado Superior",
     area: "Gestión",
     descripcion: "Gestionas la seguridad y salud laboral en empresas de cualquier sector.",

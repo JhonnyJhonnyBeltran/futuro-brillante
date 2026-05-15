@@ -121,9 +121,9 @@ const ResultCard = ({ result, rank }: Props) => {
             {rank === 0 && (
               <span
                 style={{
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 800,
-                  color: "rgba(255,255,255,0.75)",
+                  color: "white",
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                 }}
@@ -133,21 +133,33 @@ const ResultCard = ({ result, rank }: Props) => {
             )}
             <h3
               style={{
-                fontSize: "1.1rem",
+                fontSize: "1.9rem",
                 fontWeight: 900,
                 color: "white",
                 textAlign: "center",
-                lineHeight: 1.3,
+                lineHeight: 1.15,
+                textShadow: "0 2px 8px rgba(0,0,0,0.25)",
               }}
             >
-              {result.nombre}
+              {result.nombreGenerico}
             </h3>
             <span
               style={{
-                fontSize: 11,
-                color: "rgba(255,255,255,0.6)",
+                fontSize: 15,
+                color: "rgba(255,255,255,0.9)",
                 fontWeight: 600,
-                marginTop: 4,
+                textAlign: "center",
+                lineHeight: 1.4,
+              }}
+            >
+              {result.nombre}
+            </span>
+            <span
+              style={{
+                fontSize: 13,
+                color: "rgba(255,255,255,0.85)",
+                fontWeight: 600,
+                marginTop: 8,
               }}
             >
               Pulsa para ver más
