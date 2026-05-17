@@ -1,7 +1,7 @@
 {
-  "name": "Elige tu Futuro — CPIFP El Arenal",
-  "short_name": "Elige tu Futuro",
-  "description": "Descubre el ciclo formativo ideal para ti en CPIFP El Arenal.",
+  "name": "Descúbre-T — CPIFP El Arenal",
+  "short_name": "Descúbre-T",
+  "description": "Descubre el ciclo formativo ideal para ti en el CPIFP El Arenal.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
