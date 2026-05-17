@@ -5,7 +5,7 @@ const Header = () => {
         <img src="/logo.png" alt="Logo" className="w-10 h-10 rounded-lg" />
         <div className="flex flex-col leading-tight">
           <span className="font-bold text-[15px] text-primary">CPIFP El Arenal</span>
-          <span className="text-[11px] text-muted-foreground">Centro Público Integrado de FP (Formación Profesional)</span>
+          <span className="text-[11px] text-muted-foreground">Centro Público Integrado de Formación Profesional</span>
         </div>
       </div>
     </header>

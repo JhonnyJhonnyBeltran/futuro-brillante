@@ -1,45 +1,79 @@
-import { ciclos, type CicloConPuntuacion, type FamiliaKey } from "@/data/ciclos";
+import {
+  ciclos,
+  type CicloConPuntuacion,
+  type FamiliaKey,
+} from "@/data/ciclos";
+import { PREGUNTAS_FASE2 } from "@/data/preguntas";
 
 const PESOS_FAMILIA: Record<FamiliaKey, Record<string, number>> = {
   FABRICACION: {
-    "P1-A": 3, "P1-B": 1,
-    "P2-A": 3, "P2-B": 1,
-    "P3-A": 3, "P3-D": 1,
-    "P4-A": 3, "P4-E": 2,
-    "P5-A": 3, "P5-E": 1,
-    "P6-A": 3, "P6-D": 1,
+    "P1-A": 3,
+    "P1-B": 1,
+    "P2-A": 3,
+    "P2-B": 1,
+    "P3-A": 3,
+    "P3-D": 1,
+    "P4-A": 3,
+    "P4-E": 2,
+    "P5-A": 3,
+    "P5-E": 1,
+    "P6-A": 3,
+    "P6-D": 1,
   },
   ELECTRICA: {
-    "P1-B": 3, "P1-E": 2,
-    "P2-A": 2, "P2-B": 2, "P2-E": 1,
-    "P3-B": 3, "P3-E": 2,
-    "P4-A": 1, "P4-B": 2,
-    "P5-B": 2, "P5-C": 2,
-    "P6-A": 2, "P6-C": 2,
+    "P1-B": 3,
+    "P1-E": 2,
+    "P2-A": 2,
+    "P2-B": 2,
+    "P2-E": 1,
+    "P3-B": 3,
+    "P3-E": 2,
+    "P4-A": 1,
+    "P4-B": 2,
+    "P5-B": 2,
+    "P5-C": 2,
+    "P6-A": 2,
+    "P6-C": 2,
   },
   CONSTRUCCION: {
-    "P1-C": 3, "P1-D": 1,
-    "P2-B": 3, "P2-C": 2,
-    "P3-D": 3, "P3-A": 1,
-    "P4-C": 3, "P4-E": 1,
-    "P5-E": 3, "P5-C": 1,
-    "P6-D": 3, "P6-B": 1,
+    "P1-C": 3,
+    "P1-D": 1,
+    "P2-B": 3,
+    "P2-C": 2,
+    "P3-D": 3,
+    "P3-A": 1,
+    "P4-C": 3,
+    "P4-E": 1,
+    "P5-E": 3,
+    "P5-C": 1,
+    "P6-D": 3,
+    "P6-B": 1,
   },
   GESTION: {
-    "P1-D": 3, "P1-C": 1,
-    "P2-D": 3, "P2-C": 1,
-    "P3-C": 3, "P3-B": 1,
+    "P1-D": 3,
+    "P1-C": 1,
+    "P2-D": 3,
+    "P2-C": 1,
+    "P3-C": 3,
+    "P3-B": 1,
     "P4-D": 3,
-    "P5-D": 3, "P5-C": 1,
-    "P6-B": 3, "P6-E": 3,
+    "P5-D": 3,
+    "P5-C": 1,
+    "P6-B": 3,
+    "P6-E": 3,
   },
   DIGITAL: {
-    "P1-E": 3, "P1-B": 2,
-    "P2-C": 2, "P2-D": 1,
-    "P3-E": 3, "P3-B": 1,
+    "P1-E": 3,
+    "P1-B": 2,
+    "P2-C": 2,
+    "P2-D": 1,
+    "P3-E": 3,
+    "P3-B": 1,
     "P4-B": 3,
-    "P5-B": 3, "P5-C": 1,
-    "P6-C": 3, "P6-A": 1,
+    "P5-B": 3,
+    "P5-C": 1,
+    "P6-C": 3,
+    "P6-A": 1,
   },
 };
 
@@ -74,11 +108,23 @@ function computeMaxFamilyScores(): Record<FamiliaKey, number> {
   return maxScores;
 }
 
-function computeMaxCicloScore(ciclo: (typeof ciclos)[0], familia: FamiliaKey) {
+function computeMaxCicloScore(
+  ciclo: (typeof ciclos)[0],
+  familia: FamiliaKey,
+  respuestas?: Record<string, string>,
+) {
   const grid = getScoreGrid(ciclo, familia);
   if (!grid) return 0;
   let total = 0;
   for (const p of ["P7", "P8", "P9", "P10"] as const) {
+    // si hay respuestas y la respuesta es una opción "No lo sé todavía", omitimos esta pregunta del máximo
+    if (respuestas && respuestas[p]) {
+      const respKey = respuestas[p];
+      const preguntasFamilia = PREGUNTAS_FASE2[familia] ?? [];
+      const pregunta = preguntasFamilia.find((q) => q.id === p);
+      const opt = pregunta?.opciones.find((o) => o.clave === respKey);
+      if (opt && /no lo sé/i.test(opt.texto)) continue;
+    }
     const opts = grid[p];
     if (!opts) continue;
     const maxOpt = Math.max(...Object.values(opts as Record<string, number>));
@@ -87,7 +133,9 @@ function computeMaxCicloScore(ciclo: (typeof ciclos)[0], familia: FamiliaKey) {
   return total;
 }
 
-function calcularScoresFamilia(respuestas: Record<string, string>): Record<FamiliaKey, number> {
+function calcularScoresFamilia(
+  respuestas: Record<string, string>,
+): Record<FamiliaKey, number> {
   const scores: Record<FamiliaKey, number> = {
     FABRICACION: 0,
     ELECTRICA: 0,
@@ -109,31 +157,51 @@ function calcularScoresFamilia(respuestas: Record<string, string>): Record<Famil
   return scores;
 }
 
-export function detectarFamilia(respuestas: Record<string, string>): FamiliaKey {
+export function detectarFamilia(
+  respuestas: Record<string, string>,
+): FamiliaKey {
   const scores = calcularScoresFamilia(respuestas);
+  const maxFamilyScores = computeMaxFamilyScores();
 
-  const maxScore = Math.max(...Object.values(scores));
-  const empatadas = (Object.keys(scores) as FamiliaKey[]).filter(
-    (f) => scores[f] === maxScore,
+  // normalizar por el máximo posible de cada familia
+  const normalized: Record<FamiliaKey, number> = {
+    FABRICACION: (scores.FABRICACION ?? 0) / (maxFamilyScores.FABRICACION || 1),
+    ELECTRICA: (scores.ELECTRICA ?? 0) / (maxFamilyScores.ELECTRICA || 1),
+    CONSTRUCCION:
+      (scores.CONSTRUCCION ?? 0) / (maxFamilyScores.CONSTRUCCION || 1),
+    GESTION: (scores.GESTION ?? 0) / (maxFamilyScores.GESTION || 1),
+    DIGITAL: (scores.DIGITAL ?? 0) / (maxFamilyScores.DIGITAL || 1),
+  };
+
+  const maxNorm = Math.max(...Object.values(normalized));
+  const empatadas = (Object.keys(normalized) as FamiliaKey[]).filter(
+    (f) => normalized[f] === maxNorm,
   );
 
   if (empatadas.length === 1) return empatadas[0];
 
-  // Desempate: familia con mayor puntuación acumulada sólo con respuestas B y E en P1-P6
+  // Desempate: usar la misma idea que había (B/E) pero normalizando por su máximo posible
   let mejorFamilia = empatadas[0];
   let mejorEB = -1;
 
   for (const familia of empatadas) {
     const pesos = PESOS_FAMILIA[familia];
+    // calcular la puntuación EB (B o E) y su máximo posible para esta familia
     let ebScore = 0;
+    let ebMax = 0;
     for (let p = 1; p <= 6; p++) {
       const resp = respuestas[`P${p}`];
       if (resp === "B" || resp === "E") {
         ebScore += pesos[`P${p}-${resp}`] ?? 0;
       }
+      // calcular máximo posible entre B y E para este p (si existen en pesos)
+      const optB = pesos[`P${p}-B`] ?? Number.NEGATIVE_INFINITY;
+      const optE = pesos[`P${p}-E`] ?? Number.NEGATIVE_INFINITY;
+      ebMax += Math.max(0, Math.max(optB, optE, 0));
     }
-    if (ebScore > mejorEB) {
-      mejorEB = ebScore;
+    const ebNorm = ebMax > 0 ? ebScore / ebMax : ebScore;
+    if (ebNorm > mejorEB) {
+      mejorEB = ebNorm;
       mejorFamilia = familia;
     }
   }
@@ -159,6 +227,13 @@ function puntuarCiclo(
   for (const p of ["P7", "P8", "P9", "P10"] as const) {
     const resp = respuestas[p];
     if (resp && grid[p]) {
+      // si la opción textual es "No lo sé todavía", no la contabilizamos
+      const preguntasFamilia = PREGUNTAS_FASE2[familia] ?? [];
+      const pregunta = preguntasFamilia.find((q) => q.id === p);
+      const opt = pregunta?.opciones.find((o) => o.clave === resp);
+      if (opt && /no lo sé/i.test(opt.texto)) {
+        continue;
+      }
       total += grid[p][resp] ?? 0;
     }
   }
@@ -167,7 +242,13 @@ function puntuarCiclo(
 
 export function calcularRecomendaciones(
   respuestas: Record<string, string>,
-): Array<CicloConPuntuacion & { percentage: number; confidence: number; familyUsed: FamiliaKey }> {
+): Array<
+  CicloConPuntuacion & {
+    percentage: number;
+    confidence: number;
+    familyUsed: FamiliaKey;
+  }
+> {
   const familiaScores = calcularScoresFamilia(respuestas);
   const familia = detectarFamilia(respuestas);
 
@@ -177,14 +258,15 @@ export function calcularRecomendaciones(
     const candidatos = ciclos.filter((c) => c.familias.includes(familiaUsada));
     return candidatos.map((ciclo) => {
       const cicloRaw = puntuarCiclo(ciclo, familiaUsada, respuestas);
-      const maxCiclo = computeMaxCicloScore(ciclo, familiaUsada) || 1;
-      const normalizedCiclo = cicloRaw / maxCiclo;
+      const maxCiclo = computeMaxCicloScore(ciclo, familiaUsada, respuestas) || 1;
+      const normalizedCiclo = maxCiclo > 0 ? cicloRaw / maxCiclo : 0;
 
       const familyRaw = familiaScores[familiaUsada] ?? 0;
       const maxFamily = maxFamilyScores[familiaUsada] || 1;
       const normalizedFamily = familyRaw / maxFamily;
 
-      const finalScore = ALPHA * normalizedFamily + (1 - ALPHA) * normalizedCiclo;
+      const finalScore =
+        ALPHA * normalizedFamily + (1 - ALPHA) * normalizedCiclo;
       return {
         ...ciclo,
         puntuacion: finalScore,
@@ -194,7 +276,8 @@ export function calcularRecomendaciones(
   }
 
   // primeros candidatos usando la familia detectada
-  let puntuados = scoreCandidatesForFamily(familia).filter((c) => c.puntuacion > 0)
+  let puntuados = scoreCandidatesForFamily(familia)
+    .filter((c) => c.puntuacion > 0)
     .sort((a, b) => b.puntuacion - a.puntuacion);
 
   if (puntuados.length < 3) {
@@ -233,7 +316,9 @@ export function calcularRecomendaciones(
   puntuados = puntuados.slice(0, 3);
   for (let i = 0; i < puntuados.length; i++) {
     const next = puntuados[i + 1];
-    const conf = next ? (puntuados[i] as any).percentage - (next as any).percentage : (puntuados[i] as any).percentage;
+    const conf = next
+      ? (puntuados[i] as any).percentage - (next as any).percentage
+      : (puntuados[i] as any).percentage;
     (puntuados[i] as any).confidence = conf;
   }
 

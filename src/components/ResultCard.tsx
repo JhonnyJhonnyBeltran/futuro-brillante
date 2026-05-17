@@ -6,20 +6,11 @@ type Props = { result: ResultWithMeta; rank: number };
 
 type Phase = "idle" | "fold-out" | "fold-in";
 
-const MAX_SCORE = 12;
+const RANK_LABEL = ["⭐ Mejor coincidencia", "👍 Buena opción", "✔ También compatible"] as const;
 
 const ResultCard = ({ result, rank }: Props) => {
   const [phase, setPhase] = useState<Phase>("idle");
   const [showFront, setShowFront] = useState(false);
-
-  const percentage = Math.max(
-    0,
-    Math.min(
-      100,
-      // prefer explicit percentage from scoring-v2 when available
-      typeof result.percentage === "number" ? result.percentage : Math.round((result.puntuacion / MAX_SCORE) * 100)
-    )
-  );
 
   const handleFlip = () => {
     if (phase !== "idle" || showFront) return;
@@ -37,13 +28,11 @@ const ResultCard = ({ result, rank }: Props) => {
     }, 320);
   };
 
-  // Estilos de rotación según la fase
   const rotStyle = (): React.CSSProperties => {
     if (phase === "fold-out")
       return { transform: "rotateY(90deg)", transition: "transform 320ms ease-in" };
     if (phase === "fold-in")
       return { transform: "rotateY(-90deg)", transition: "none" };
-    // idle
     return {
       transform: "rotateY(0deg)",
       transition: showFront ? "transform 320ms ease-out" : "none",
@@ -51,12 +40,11 @@ const ResultCard = ({ result, rank }: Props) => {
   };
 
   return (
-    // El contenedor siempre tiene la altura de la cara delantera
     <div
       onClick={handleFlip}
       style={{ position: "relative", cursor: showFront ? "default" : "pointer", perspective: "800px" }}
     >
-      {/* Cara delantera — siempre renderizada para fijar la altura del contenedor */}
+      {/* Cara delantera */}
       <div
         style={{
           visibility: showFront ? "visible" : "hidden",
@@ -65,14 +53,12 @@ const ResultCard = ({ result, rank }: Props) => {
           ...rotStyle(),
         }}
       >
-        <div className="question-card p-4 sm:p-5">
+        <div className={"question-card p-4 sm:p-5"}>
           <div className="flex items-center justify-between mb-3">
             <span className="pill-dark">{result.nivel}</span>
-            {rank === 0 && (
-              <span className="text-[11px] font-bold text-gradient-primary">
-                ⭐ Mejor coincidencia
-              </span>
-            )}
+            <span className="text-[11px] font-bold text-gradient-primary">
+              {RANK_LABEL[rank]}
+            </span>
           </div>
           <h3 className="text-lg font-bold text-foreground leading-tight mb-1">
             {result.nombre}
@@ -80,24 +66,13 @@ const ResultCard = ({ result, rank }: Props) => {
           <p className="text-sm text-muted-foreground mb-2 leading-relaxed">
             {result.area}
           </p>
-          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             {result.descripcion}
           </p>
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs font-semibold text-muted-foreground">
-              Afinidad con tu perfil
-            </span>
-            <span className="text-sm font-bold text-gradient-accent">
-              {percentage}%
-            </span>
-          </div>
-          <div className="progress-track">
-            <div className="progress-fill" style={{ width: `${percentage}%` }} />
-          </div>
         </div>
       </div>
 
-      {/* Cara trasera — encima, absolute, misma altura que la delantera */}
+      {/* Cara trasera */}
       {!showFront && (
         <div
           style={{
@@ -123,19 +98,17 @@ const ResultCard = ({ result, rank }: Props) => {
               gap: 10,
             }}
           >
-            {rank === 0 && (
-              <span
-                style={{
-                  fontSize: 12,
-                  fontWeight: 800,
-                  color: "white",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                }}
-              >
-                ⭐ Mejor coincidencia
-              </span>
-            )}
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 800,
+                color: "white",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+              }}
+            >
+              {RANK_LABEL[rank]}
+            </span>
             <h3
               style={{
                 fontSize: "1.9rem",

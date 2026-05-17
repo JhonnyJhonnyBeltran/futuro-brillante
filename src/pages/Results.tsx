@@ -35,24 +35,16 @@ function generarInformeHTML(data: ResultsData): string {
     FAMILIA_LABEL[data.familia as FamiliaKey] ?? data.familia;
 
   const ciclos = data.ciclos.slice(0, 3);
-  const labels = ["1ª opción — Mejor coincidencia", "2ª opción", "3ª opción"];
+  const labels = ["Mejor coincidencia", "Buena opción", "También compatible"];
 
   const ciclosHTML = ciclos
     .map((c, i) => {
-      const pct = c.percentage;
       return `
       <div class="ciclo ${i === 0 ? "ciclo-top" : ""}">
         <div class="ciclo-label">${labels[i]}</div>
         <div class="ciclo-nombre">${c.nombre}</div>
         <div class="ciclo-meta">${c.nivel} &nbsp;·&nbsp; ${c.area}</div>
         <div class="ciclo-desc">${c.descripcion}</div>
-        <div class="afinidad-row">
-          <span class="afinidad-text">Afinidad con tu perfil</span>
-          <span class="afinidad-pct">${pct}%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width:${pct}%"></div>
-        </div>
       </div>`;
     })
     .join("");
@@ -173,35 +165,14 @@ function generarInformeHTML(data: ResultsData): string {
       border-top-right-radius: 12px;
     }
     .ciclo-label {
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
+      font-size: 11px;
+      font-weight: 700;
       color: #ff6b35;
       margin-bottom: 6px;
     }
     .ciclo-nombre { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
     .ciclo-meta { font-size: 11px; color: #888; margin-bottom: 8px; }
     .ciclo-desc { font-size: 12px; color: #555; line-height: 1.55; margin-bottom: 10px; }
-    .afinidad-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 5px;
-    }
-    .afinidad-text { font-size: 11px; color: #888; font-weight: 600; }
-    .afinidad-pct { font-size: 13px; font-weight: 800; color: #ff6b35; }
-    .progress-bar {
-      height: 6px;
-      background: #f0f0f0;
-      border-radius: 9999px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #ff6b35, #f7931e);
-      border-radius: 9999px;
-    }
 
     .footer {
       border-top: 1px solid #f0f0f0;
