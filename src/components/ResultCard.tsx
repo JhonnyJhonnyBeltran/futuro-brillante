@@ -1,7 +1,8 @@
 import { useState } from "react";
 import type { CicloConPuntuacion } from "@/data/ciclos";
 
-type Props = { result: CicloConPuntuacion; rank: number };
+type ResultWithMeta = CicloConPuntuacion & { percentage?: number };
+type Props = { result: ResultWithMeta; rank: number };
 
 type Phase = "idle" | "fold-out" | "fold-in";
 
@@ -13,7 +14,11 @@ const ResultCard = ({ result, rank }: Props) => {
 
   const percentage = Math.max(
     0,
-    Math.min(100, Math.round((result.puntuacion / MAX_SCORE) * 100))
+    Math.min(
+      100,
+      // prefer explicit percentage from scoring-v2 when available
+      typeof result.percentage === "number" ? result.percentage : Math.round((result.puntuacion / MAX_SCORE) * 100)
+    )
   );
 
   const handleFlip = () => {

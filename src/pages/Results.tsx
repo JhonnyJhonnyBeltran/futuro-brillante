@@ -23,7 +23,6 @@ interface ResultsData {
   duracionSegundos?: number | null;
 }
 
-const MAX_SCORE = 12;
 
 function generarInformeHTML(data: ResultsData): string {
   const fecha = new Date(data.timestamp).toLocaleDateString("es-ES", {
@@ -40,10 +39,7 @@ function generarInformeHTML(data: ResultsData): string {
 
   const ciclosHTML = ciclos
     .map((c, i) => {
-      const pct = Math.max(
-        0,
-        Math.min(100, Math.round((c.puntuacion / MAX_SCORE) * 100))
-      );
+      const pct = c.percentage;
       return `
       <div class="ciclo ${i === 0 ? "ciclo-top" : ""}">
         <div class="ciclo-label">${labels[i]}</div>
@@ -284,11 +280,11 @@ const Results = () => {
   const navigate = useNavigate();
   const [modalSorteo, setModalSorteo] = useState(false);
   const [inscrito, setInscrito] = useState(
-    () => sessionStorage.getItem("eligetufuturo_inscrito") === "1"
+    () => sessionStorage.getItem("eligetufut_inscrito") === "1"
   );
 
   const data = useMemo<ResultsData | null>(() => {
-    const raw = sessionStorage.getItem("eligetufuturo_results");
+    const raw = sessionStorage.getItem("descubre-t_results");
     if (!raw) {
       navigate("/cuestionario");
       return null;
@@ -470,7 +466,7 @@ const Results = () => {
         open={modalSorteo}
         onClose={() => setModalSorteo(false)}
         onSuccess={() => {
-          sessionStorage.setItem("eligetufuturo_inscrito", "1");
+          sessionStorage.setItem("descubre-t_inscrito", "1");
           setInscrito(true);
           setModalSorteo(false);
         }}

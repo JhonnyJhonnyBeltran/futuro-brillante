@@ -251,8 +251,8 @@ const Cuestionario = () => {
               ? Math.round((Date.now() - startTimeRef.current) / 1000)
               : null;
 
-            const sessionId = sessionStorage.getItem("eligetufuturo_session_id") ?? crypto.randomUUID();
-            sessionStorage.setItem("eligetufuturo_session_id", sessionId);
+            const sessionId = sessionStorage.getItem("descubre-t_session_id") ?? crypto.randomUUID();
+            sessionStorage.setItem("descubre-t_session_id", sessionId);
 
             const { questions, answers } = buildStatsPayload(nuevasRespuestas);
 

@@ -43,7 +43,7 @@ const ResultadosCiclos = ({ ciclos: resultados, familia, onReset, perfil, submis
 
   useEffect(() => {
     sessionStorage.setItem(
-      "eligetufuturo_results",
+      "descubre-t_results",
       JSON.stringify({
         ciclos: resultados,
         familia,

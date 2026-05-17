@@ -43,6 +43,50 @@ const PESOS_FAMILIA: Record<FamiliaKey, Record<string, number>> = {
   },
 };
 
+const ALPHA = 0.4; // peso de la señal de familia vs ciclo (0..1)
+const SOFTMAX_BETA = 4; // controla la nitidez de la softmax (mayor = más enfocada)
+
+function computeMaxFamilyScores(): Record<FamiliaKey, number> {
+  const maxScores: Record<FamiliaKey, number> = {
+    FABRICACION: 0,
+    ELECTRICA: 0,
+    CONSTRUCCION: 0,
+    GESTION: 0,
+    DIGITAL: 0,
+  };
+
+  for (const familia of Object.keys(PESOS_FAMILIA) as FamiliaKey[]) {
+    const pesos = PESOS_FAMILIA[familia];
+    let total = 0;
+    for (let p = 1; p <= 6; p++) {
+      let maxOpt = 0;
+      const prefix = `P${p}-`;
+      for (const k of Object.keys(pesos)) {
+        if (k.startsWith(prefix)) {
+          maxOpt = Math.max(maxOpt, pesos[k] ?? 0);
+        }
+      }
+      total += maxOpt;
+    }
+    maxScores[familia] = total;
+  }
+
+  return maxScores;
+}
+
+function computeMaxCicloScore(ciclo: (typeof ciclos)[0], familia: FamiliaKey) {
+  const grid = getScoreGrid(ciclo, familia);
+  if (!grid) return 0;
+  let total = 0;
+  for (const p of ["P7", "P8", "P9", "P10"] as const) {
+    const opts = grid[p];
+    if (!opts) continue;
+    const maxOpt = Math.max(...Object.values(opts as Record<string, number>));
+    total += maxOpt;
+  }
+  return total;
+}
+
 function calcularScoresFamilia(respuestas: Record<string, string>): Record<FamiliaKey, number> {
   const scores: Record<FamiliaKey, number> = {
     FABRICACION: 0,
@@ -123,51 +167,75 @@ function puntuarCiclo(
 
 export function calcularRecomendaciones(
   respuestas: Record<string, string>,
-): CicloConPuntuacion[] {
+): Array<CicloConPuntuacion & { percentage: number; confidence: number; familyUsed: FamiliaKey }> {
   const familiaScores = calcularScoresFamilia(respuestas);
   const familia = detectarFamilia(respuestas);
 
-  const candidatos = ciclos.filter((c) => c.familias.includes(familia));
+  const maxFamilyScores = computeMaxFamilyScores();
 
-  const puntuados: CicloConPuntuacion[] = candidatos.map((ciclo) => ({
-    ...ciclo,
-    puntuacion: puntuarCiclo(ciclo, familia, respuestas),
-  }));
+  function scoreCandidatesForFamily(familiaUsada: FamiliaKey) {
+    const candidatos = ciclos.filter((c) => c.familias.includes(familiaUsada));
+    return candidatos.map((ciclo) => {
+      const cicloRaw = puntuarCiclo(ciclo, familiaUsada, respuestas);
+      const maxCiclo = computeMaxCicloScore(ciclo, familiaUsada) || 1;
+      const normalizedCiclo = cicloRaw / maxCiclo;
 
-  const positivos = puntuados
-    .filter((c) => c.puntuacion > 0)
+      const familyRaw = familiaScores[familiaUsada] ?? 0;
+      const maxFamily = maxFamilyScores[familiaUsada] || 1;
+      const normalizedFamily = familyRaw / maxFamily;
+
+      const finalScore = ALPHA * normalizedFamily + (1 - ALPHA) * normalizedCiclo;
+      return {
+        ...ciclo,
+        puntuacion: finalScore,
+        familyUsed: familiaUsada,
+      } as CicloConPuntuacion & { familyUsed: FamiliaKey };
+    });
+  }
+
+  // primeros candidatos usando la familia detectada
+  let puntuados = scoreCandidatesForFamily(familia).filter((c) => c.puntuacion > 0)
     .sort((a, b) => b.puntuacion - a.puntuacion);
 
-  if (positivos.length >= 3) return positivos.slice(0, 3);
+  if (puntuados.length < 3) {
+    const familiasOrdenadas = (Object.keys(familiaScores) as FamiliaKey[])
+      .filter((f) => f !== familia)
+      .sort((a, b) => familiaScores[b] - familiaScores[a]);
 
-  // Completar con ciclos de la segunda familia con mayor puntuación
-  const familiasOrdenadas = (Object.keys(familiaScores) as FamiliaKey[])
-    .filter((f) => f !== familia)
-    .sort((a, b) => familiaScores[b] - familiaScores[a]);
+    const yaIncluidos = new Set(puntuados.map((c) => c.id));
 
-  const yaIncluidos = new Set(positivos.map((c) => c.id));
+    for (const segundaFamilia of familiasOrdenadas) {
+      if (puntuados.length >= 3) break;
+      const puntuadosSF = scoreCandidatesForFamily(segundaFamilia)
+        .filter((c) => !yaIncluidos.has(c.id) && c.puntuacion >= 0)
+        .sort((a, b) => b.puntuacion - a.puntuacion);
 
-  for (const segundaFamilia of familiasOrdenadas) {
-    if (positivos.length >= 3) break;
-
-    const candidatosSF = ciclos.filter(
-      (c) => c.familias.includes(segundaFamilia) && !yaIncluidos.has(c.id),
-    );
-
-    const puntuadosSF: CicloConPuntuacion[] = candidatosSF
-      .map((ciclo) => ({
-        ...ciclo,
-        puntuacion: puntuarCiclo(ciclo, segundaFamilia, respuestas),
-      }))
-      .filter((c) => c.puntuacion >= 0)
-      .sort((a, b) => b.puntuacion - a.puntuacion);
-
-    for (const ciclo of puntuadosSF) {
-      if (positivos.length >= 3) break;
-      yaIncluidos.add(ciclo.id);
-      positivos.push(ciclo);
+      for (const ciclo of puntuadosSF) {
+        if (puntuados.length >= 3) break;
+        yaIncluidos.add(ciclo.id);
+        puntuados.push(ciclo);
+      }
     }
   }
 
-  return positivos.slice(0, 3);
+  // aplicar softmax sobre los scores finales para obtener probabilidades relativas
+  const scores = puntuados.map((p) => p.puntuacion);
+  const maxScore = Math.max(...scores);
+  const exps = scores.map((s) => Math.exp(SOFTMAX_BETA * (s - maxScore)));
+  const sumExps = exps.reduce((a, b) => a + b, 0) || 1;
+  const probs = exps.map((e) => e / sumExps);
+
+  // asignar percentage (softmax * 100) y confidence (diferencia porcentual)
+  for (let i = 0; i < puntuados.length; i++) {
+    (puntuados[i] as any).percentage = Math.round(probs[i] * 100);
+  }
+
+  puntuados = puntuados.slice(0, 3);
+  for (let i = 0; i < puntuados.length; i++) {
+    const next = puntuados[i + 1];
+    const conf = next ? (puntuados[i] as any).percentage - (next as any).percentage : (puntuados[i] as any).percentage;
+    (puntuados[i] as any).confidence = conf;
+  }
+
+  return puntuados;
 }

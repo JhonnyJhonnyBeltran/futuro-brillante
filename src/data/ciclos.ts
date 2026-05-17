@@ -1,4 +1,9 @@
-export type FamiliaKey = "FABRICACION" | "ELECTRICA" | "CONSTRUCCION" | "GESTION" | "DIGITAL";
+export type FamiliaKey =
+  | "FABRICACION"
+  | "ELECTRICA"
+  | "CONSTRUCCION"
+  | "GESTION"
+  | "DIGITAL";
 
 export interface ScoreGrid {
   P7: Record<string, number>;
@@ -25,6 +30,8 @@ export interface Ciclo {
 
 export interface CicloConPuntuacion extends Ciclo {
   puntuacion: number;
+  percentage: number;
+  confidence: number;
 }
 
 export const ciclos: Ciclo[] = [
@@ -64,7 +71,8 @@ export const ciclos: Ciclo[] = [
     nombreGenerico: "Del Plano a la Pieza",
     nivel: "Grado Superior",
     area: "Fabricación",
-    descripcion: "Diseñas y programas procesos de fabricación con software CAD/CAM.",
+    descripcion:
+      "Diseñas y programas procesos de fabricación con software CAD/CAM (diseño asistido / fabricación asistida por ordenador).",
     familias: ["FABRICACION"],
     scores_f2: {
       P7: { A: 0, B: 1, C: 3, D: 1, E: 1 },
@@ -79,7 +87,8 @@ export const ciclos: Ciclo[] = [
     nombreGenerico: "Orquestando la Fábrica",
     nivel: "Grado Superior",
     area: "Fabricación / Gestión",
-    descripcion: "Planificas cuándo y cómo se fabrica cada pieza en la empresa.",
+    descripcion:
+      "Planificas cuándo y cómo se fabrica cada pieza en la empresa.",
     familias: ["FABRICACION", "GESTION"],
     scores_f2_FABRICACION: {
       P7: { A: 0, B: 0, C: 1, D: 3, E: 0 },
@@ -100,7 +109,8 @@ export const ciclos: Ciclo[] = [
     nombreGenerico: "Imprime el Futuro",
     nivel: "Certificado de Especialidad",
     area: "Fabricación / Digital",
-    descripcion: "Diseñas y fabricas objetos con impresión 3D y tecnología digital.",
+    descripcion:
+      "Diseñas y fabricas objetos con impresión 3D (impresión tridimensional) y tecnología digital.",
     familias: ["FABRICACION", "DIGITAL"],
     scores_f2_FABRICACION: {
       P7: { A: 0, B: 0, C: 1, D: 0, E: 3 },
@@ -121,7 +131,8 @@ export const ciclos: Ciclo[] = [
     nombreGenerico: "Corriente y Circuitos",
     nivel: "Grado Básico",
     area: "Eléctrica",
-    descripcion: "Realizas instalaciones eléctricas básicas en edificios bajo supervisión.",
+    descripcion:
+      "Realizas instalaciones eléctricas básicas en edificios bajo supervisión.",
     familias: ["ELECTRICA"],
     scores_f2: {
       P7: { A: 3, B: 0, C: 0, D: 0 },
@@ -136,7 +147,8 @@ export const ciclos: Ciclo[] = [
     nombreGenerico: "Luz en Cada Espacio",
     nivel: "Grado Medio",
     area: "Eléctrica",
-    descripcion: "Instalas y mantienes sistemas eléctricos en edificios e industria.",
+    descripcion:
+      "Instalas y mantienes sistemas eléctricos en edificios e industria.",
     familias: ["ELECTRICA"],
     scores_f2: {
       P7: { A: 3, B: 1, C: 0, D: 1 },
@@ -151,7 +163,8 @@ export const ciclos: Ciclo[] = [
     nombreGenerico: "Motor y Voltaje",
     nivel: "Grado Medio",
     area: "Eléctrica / Mecánica",
-    descripcion: "Mantienes y reparas máquinas industriales que combinan motor y electricidad.",
+    descripcion:
+      "Mantienes y reparas máquinas industriales que combinan motor y electricidad.",
     familias: ["ELECTRICA", "FABRICACION"],
     scores_f2_ELECTRICA: {
       P7: { A: 1, B: 3, C: 0, D: 0 },
@@ -172,7 +185,8 @@ export const ciclos: Ciclo[] = [
     nombreGenerico: "Máquinas Inteligentes",
     nivel: "Grado Superior",
     area: "Eléctrica / Digital",
-    descripcion: "Integras mecánica, electricidad e informática para mantener sistemas industriales complejos.",
+    descripcion:
+      "Integras mecánica, electricidad e informática para mantener sistemas industriales complejos.",
     familias: ["ELECTRICA", "DIGITAL"],
     scores_f2_ELECTRICA: {
       P7: { A: 0, B: 2, C: 2, D: 3 },
@@ -193,7 +207,8 @@ export const ciclos: Ciclo[] = [
     nombreGenerico: "Programando Robots",
     nivel: "Grado Superior",
     area: "Digital / Eléctrica",
-    descripcion: "Programas robots y sistemas automatizados en entornos de Industria 4.0.",
+    descripcion:
+      "Programas robots y sistemas automatizados en entornos de Industria 4.0.",
     familias: ["DIGITAL", "ELECTRICA"],
     scores_f2_DIGITAL: {
       P7: { A: 3, B: 1, C: 0, D: 3 },
@@ -214,7 +229,8 @@ export const ciclos: Ciclo[] = [
     nombreGenerico: "Diseña la Red Eléctrica",
     nivel: "Grado Superior",
     area: "Eléctrica",
-    descripcion: "Diseñas y supervisas instalaciones eléctricas, telecomunicaciones y automatización.",
+    descripcion:
+      "Diseñas y supervisas instalaciones eléctricas, telecomunicaciones y automatización.",
     familias: ["ELECTRICA"],
     scores_f2: {
       P7: { A: 1, B: 1, C: 1, D: 3 },
@@ -229,7 +245,8 @@ export const ciclos: Ciclo[] = [
     nombreGenerico: "Del Plano al Edificio",
     nivel: "Grado Superior",
     area: "Construcción",
-    descripcion: "Elaboras planos, presupuestos y documentación técnica de proyectos de obra.",
+    descripcion:
+      "Elaboras planos, presupuestos y documentación técnica de proyectos de obra.",
     familias: ["CONSTRUCCION"],
     scores_f2: {
       P7: { A: 1, B: 3, C: 2, D: 3 },
@@ -244,7 +261,8 @@ export const ciclos: Ciclo[] = [
     nombreGenerico: "Seguridad para Todos",
     nivel: "Grado Superior",
     area: "Gestión",
-    descripcion: "Gestionas la seguridad y salud laboral en empresas de cualquier sector.",
+    descripcion:
+      "Gestionas la seguridad y salud laboral en empresas de cualquier sector.",
     familias: ["GESTION"],
     scores_f2: {
       P7: { A: 3, B: 0, C: 3, D: 1 },
