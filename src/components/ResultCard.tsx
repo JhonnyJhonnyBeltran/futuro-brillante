@@ -6,7 +6,55 @@ type Props = { result: ResultWithMeta; rank: number };
 
 type Phase = "idle" | "fold-out" | "fold-in";
 
-const RANK_LABEL = ["⭐ Mejor coincidencia", "👍 Buena opción", "✔ También compatible"] as const;
+const RANK_CONFIG = [
+  { label: "Mejor coincidencia", emoji: "⭐" },
+  { label: "Buena opción", emoji: "🎯" },
+  { label: "Compatible", emoji: "✅" },
+] as const;
+
+const RankBadge = ({ rank, subtle = false }: { rank: number; subtle?: boolean }) => {
+  const { label, emoji } = RANK_CONFIG[rank];
+  if (subtle) {
+    return (
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 4,
+          color: "hsl(var(--primary))",
+          fontWeight: 700,
+          fontSize: 11,
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {emoji} {label}
+      </span>
+    );
+  }
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
+        background: "rgba(0,0,0,0.85)",
+        color: "#fff",
+        border: "none",
+        fontWeight: 700,
+        fontSize: 11,
+        letterSpacing: "0.05em",
+        textTransform: "uppercase",
+        padding: "4px 10px",
+        borderRadius: "999px",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {emoji} {label}
+    </span>
+  );
+};
 
 const ResultCard = ({ result, rank }: Props) => {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -53,12 +101,10 @@ const ResultCard = ({ result, rank }: Props) => {
           ...rotStyle(),
         }}
       >
-        <div className={"question-card p-4 sm:p-5"}>
+        <div className="question-card p-4 sm:p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="pill-dark">{result.nivel}</span>
-            <span className="text-[11px] font-bold text-gradient-primary">
-              {RANK_LABEL[rank]}
-            </span>
+            <RankBadge rank={rank} subtle />
           </div>
           <h3 className="text-lg font-bold text-foreground leading-tight mb-1">
             {result.nombre}
@@ -96,19 +142,10 @@ const ResultCard = ({ result, rank }: Props) => {
               justifyContent: "center",
               padding: "1.75rem 1.5rem",
               gap: 10,
+              overflow: "hidden",
             }}
           >
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 800,
-                color: "white",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-              }}
-            >
-              {RANK_LABEL[rank]}
-            </span>
+            <RankBadge rank={rank} />
             <h3
               style={{
                 fontSize: "1.9rem",

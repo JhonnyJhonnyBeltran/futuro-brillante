@@ -35,7 +35,7 @@ function generarInformeHTML(data: ResultsData): string {
     FAMILIA_LABEL[data.familia as FamiliaKey] ?? data.familia;
 
   const ciclos = data.ciclos.slice(0, 3);
-  const labels = ["Mejor coincidencia", "Buena opción", "También compatible"];
+  const labels = ["Mejor coincidencia", "Buena opción", "Compatible"];
 
   const ciclosHTML = ciclos
     .map((c, i) => {
