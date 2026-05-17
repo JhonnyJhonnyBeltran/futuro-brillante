@@ -42,7 +42,7 @@ const Welcome = () => {
         }}
       />
 
-      <div className="relative z-10 flex h-full flex-col items-center px-5 sm:px-6 pt-6 sm:pt-8 pb-5">
+      <main className="shell-scroll relative z-10 flex flex-col items-center px-5 sm:px-6 pt-6 sm:pt-8 pb-5">
 
         {/* Logo del centro */}
         <div className="flex shrink-0 flex-col items-center text-center anim-fade-up gap-2">
@@ -119,7 +119,7 @@ const Welcome = () => {
             <ChevronRight size={18} strokeWidth={2.5} />
           </button>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

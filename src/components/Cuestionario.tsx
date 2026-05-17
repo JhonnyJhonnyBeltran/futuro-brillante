@@ -318,11 +318,10 @@ const Cuestionario = () => {
   // Pantalla de perfil previo al cuestionario
   if (!perfilEnviado) {
     return (
-      <div className="mobile-shell" style={{ display: "flex", flexDirection: "column" }}>
+      <div className="mobile-shell">
         <Header />
         <main
-          className="px-4 sm:px-5 md:px-6 pt-4 pb-6"
-          style={{ flex: 1, overflowY: "auto" }}
+          className="shell-scroll px-4 sm:px-5 md:px-6 pt-4 pb-6"
         >
           <div className="text-center mb-5 anim-fade-up">
             <span className="pill-dark mb-3 inline-block">Antes de empezar</span>
@@ -401,14 +400,16 @@ const Cuestionario = () => {
     return (
       <div className="mobile-shell">
         <Header />
-        <ResultadosCiclos
-          ciclos={resultado}
-          familia={familiaDetectada}
-          onReset={handleReset}
-          perfil={{ centro, genero, edad }}
-          submissionId={submissionId}
-          duracionSegundos={duracionSegundos}
-        />
+        <main className="shell-scroll">
+          <ResultadosCiclos
+            ciclos={resultado}
+            familia={familiaDetectada}
+            onReset={handleReset}
+            perfil={{ centro, genero, edad }}
+            submissionId={submissionId}
+            duracionSegundos={duracionSegundos}
+          />
+        </main>
       </div>
     );
   }
@@ -420,16 +421,13 @@ const Cuestionario = () => {
   const fasoTotal = esFase2 ? PASOS_FASE2 : PASOS_FASE1;
 
   return (
-    <div
-      className="mobile-shell"
-      style={{ display: "flex", flexDirection: "column", overflowY: "hidden" }}
-    >
+    <div className="mobile-shell">
       <Header />
       <ProgressTrack step={fasoPaso} total={fasoTotal} />
 
       <main
-        className="px-4 sm:px-5 md:px-6"
-        style={{ flex: 1, overflowY: "auto", paddingBottom: "1.25rem" }}
+        className="shell-scroll px-4 sm:px-5 md:px-6"
+        style={{ paddingBottom: "1.25rem" }}
       >
         <div className="flex items-center justify-between mb-3">
           <span className="pill-dark">

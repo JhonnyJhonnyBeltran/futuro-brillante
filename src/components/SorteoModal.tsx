@@ -110,7 +110,7 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
       >
         {/* Cabecera con gradiente */}
         <div
-          className="relative px-5 pt-5 pb-4 text-white"
+          className="sticky top-0 z-10 px-5 pt-5 pb-4 text-white"
           style={{
             background: "var(--gradient-accent)",
             backgroundSize: "200% 200%",

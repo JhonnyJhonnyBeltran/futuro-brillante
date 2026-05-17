@@ -380,7 +380,7 @@ const Results = () => {
   return (
     <div className="mobile-shell">
       <Header />
-      <main className="px-4 sm:px-5 md:px-6 pt-3 sm:pt-5 pb-6 sm:pb-8">
+      <main className="shell-scroll px-4 sm:px-5 md:px-6 pt-3 sm:pt-5 pb-6 sm:pb-8">
         <div className="text-center mb-4 sm:mb-5 anim-fade-up">
           <h1 className="text-[clamp(1.4rem,6vw,1.75rem)] font-black leading-tight">
             <span className="text-gradient-accent">¡Tus resultados!</span>

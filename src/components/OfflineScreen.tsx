@@ -29,7 +29,7 @@ const OfflineScreen = () => {
         }}
       />
 
-      <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-4 sm:px-5 md:px-6 py-4 sm:py-6">
+      <main className="shell-scroll relative z-10 flex flex-col items-center justify-center text-center px-4 sm:px-5 md:px-6 py-4 sm:py-6">
         <div className="anim-fade-up flex shrink-0 flex-col items-center">
           <div
             className="flex items-center justify-center mb-6"
@@ -68,7 +68,7 @@ const OfflineScreen = () => {
             La conexión se restablecerá automáticamente
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

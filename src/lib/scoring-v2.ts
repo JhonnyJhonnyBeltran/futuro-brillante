@@ -77,8 +77,8 @@ const PESOS_FAMILIA: Record<FamiliaKey, Record<string, number>> = {
   },
 };
 
-const ALPHA = 0.4; // peso de la señal de familia vs ciclo (0..1)
-const SOFTMAX_BETA = 4; // controla la nitidez de la softmax (mayor = más enfocada)
+const ALPHA = 0.3; // peso de la señal de familia vs ciclo (0..1)
+const SOFTMAX_BETA = 2.5; // controla la nitidez de la softmax (mayor = más enfocada)
 
 function computeMaxFamilyScores(): Record<FamiliaKey, number> {
   const maxScores: Record<FamiliaKey, number> = {
@@ -250,56 +250,42 @@ export function calcularRecomendaciones(
   }
 > {
   const familiaScores = calcularScoresFamilia(respuestas);
-  const familia = detectarFamilia(respuestas);
-
   const maxFamilyScores = computeMaxFamilyScores();
 
-  function scoreCandidatesForFamily(familiaUsada: FamiliaKey) {
-    const candidatos = ciclos.filter((c) => c.familias.includes(familiaUsada));
-    return candidatos.map((ciclo) => {
-      const cicloRaw = puntuarCiclo(ciclo, familiaUsada, respuestas);
-      const maxCiclo = computeMaxCicloScore(ciclo, familiaUsada, respuestas) || 1;
-      const normalizedCiclo = maxCiclo > 0 ? cicloRaw / maxCiclo : 0;
+  let puntuados = ciclos
+    .map((ciclo) => {
+      const familias = ciclo.familias as FamiliaKey[];
+      let familyUsed = familias[0];
+      let bestFamilyScore = -1;
 
-      const familyRaw = familiaScores[familiaUsada] ?? 0;
-      const maxFamily = maxFamilyScores[familiaUsada] || 1;
-      const normalizedFamily = familyRaw / maxFamily;
+      for (const familia of familias) {
+        const familyRaw = familiaScores[familia] ?? 0;
+        const maxFamily = maxFamilyScores[familia] || 1;
+        const normalizedFamily = familyRaw / maxFamily;
+        if (normalizedFamily > bestFamilyScore) {
+          bestFamilyScore = normalizedFamily;
+          familyUsed = familia;
+        }
+      }
+
+      const cicloRaw = puntuarCiclo(ciclo, familyUsed, respuestas);
+      const maxCiclo = computeMaxCicloScore(ciclo, familyUsed, respuestas) || 1;
+      const normalizedCiclo = maxCiclo > 0 ? cicloRaw / maxCiclo : 0;
+      const normalizedFamily = Math.max(0, bestFamilyScore);
 
       const finalScore =
         ALPHA * normalizedFamily + (1 - ALPHA) * normalizedCiclo;
+
       return {
         ...ciclo,
         puntuacion: finalScore,
-        familyUsed: familiaUsada,
+        familyUsed,
       } as CicloConPuntuacion & { familyUsed: FamiliaKey };
-    });
-  }
-
-  // primeros candidatos usando la familia detectada
-  let puntuados = scoreCandidatesForFamily(familia)
+    })
     .filter((c) => c.puntuacion > 0)
     .sort((a, b) => b.puntuacion - a.puntuacion);
 
-  if (puntuados.length < 3) {
-    const familiasOrdenadas = (Object.keys(familiaScores) as FamiliaKey[])
-      .filter((f) => f !== familia)
-      .sort((a, b) => familiaScores[b] - familiaScores[a]);
-
-    const yaIncluidos = new Set(puntuados.map((c) => c.id));
-
-    for (const segundaFamilia of familiasOrdenadas) {
-      if (puntuados.length >= 3) break;
-      const puntuadosSF = scoreCandidatesForFamily(segundaFamilia)
-        .filter((c) => !yaIncluidos.has(c.id) && c.puntuacion >= 0)
-        .sort((a, b) => b.puntuacion - a.puntuacion);
-
-      for (const ciclo of puntuadosSF) {
-        if (puntuados.length >= 3) break;
-        yaIncluidos.add(ciclo.id);
-        puntuados.push(ciclo);
-      }
-    }
-  }
+  if (puntuados.length === 0) return [];
 
   // aplicar softmax sobre los scores finales para obtener probabilidades relativas
   const scores = puntuados.map((p) => p.puntuacion);
