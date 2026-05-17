@@ -8,8 +8,8 @@ type Phase = "idle" | "fold-out" | "fold-in";
 
 const RANK_CONFIG = [
   { label: "Mejor coincidencia", emoji: "⭐" },
-  { label: "Buena opción", emoji: "🎯" },
-  { label: "Compatible", emoji: "✅" },
+  { label: "Buena opción", emoji: "" },
+  { label: "Compatible", emoji: "" },
 ] as const;
 
 const RankBadge = ({ rank, subtle = false }: { rank: number; subtle?: boolean }) => {
@@ -29,7 +29,7 @@ const RankBadge = ({ rank, subtle = false }: { rank: number; subtle?: boolean })
           whiteSpace: "nowrap",
         }}
       >
-        {emoji} {label}
+        {emoji ? `${emoji} ` : ""}{label}
       </span>
     );
   }

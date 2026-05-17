@@ -31,220 +31,98 @@ function generarInformeHTML(data: ResultsData): string {
     day: "numeric",
   });
 
-  const familiaLabel =
-    FAMILIA_LABEL[data.familia as FamiliaKey] ?? data.familia;
-
+  const familiaLabel = FAMILIA_LABEL[data.familia as FamiliaKey] ?? data.familia;
   const ciclos = data.ciclos.slice(0, 3);
-  const labels = ["Mejor coincidencia", "Buena opción", "Compatible"];
 
-  const ciclosHTML = ciclos
-    .map((c, i) => {
-      return `
-      <div class="ciclo ${i === 0 ? "ciclo-top" : ""}">
-        <div class="ciclo-label">${labels[i]}</div>
-        <div class="ciclo-nombre">${c.nombre}</div>
-        <div class="ciclo-meta">${c.nivel} &nbsp;·&nbsp; ${c.area}</div>
-        <div class="ciclo-desc">${c.descripcion}</div>
-      </div>`;
-    })
-    .join("");
+  const rankConfig = [
+    { label: "Mejor coincidencia", emoji: "⭐", accent: "linear-gradient(180deg,#ff6b35,#f59e0b)" },
+    { label: "Buena opción",       emoji: "",   accent: "linear-gradient(180deg,#3b82f6,#6366f1)" },
+    { label: "Compatible",         emoji: "",   accent: "linear-gradient(180deg,#818cf8,#a78bfa)" },
+  ];
 
-  const perfilRows = [
-    data.perfil?.centro
-      ? `<tr><td class="td-label">Centro educativo</td><td>${data.perfil.centro}</td></tr>`
-      : "",
-    data.perfil?.genero
-      ? `<tr><td class="td-label">Género</td><td>${data.perfil.genero}</td></tr>`
-      : "",
-    data.perfil?.edad
-      ? `<tr><td class="td-label">Edad</td><td>${data.perfil.edad} años</td></tr>`
-      : "",
-    `<tr><td class="td-label">Fecha</td><td>${fecha}</td></tr>`,
-  ]
-    .filter(Boolean)
-    .join("");
+  const ciclosHTML = ciclos.map((c, i) => {
+    const r = rankConfig[i];
+    const isLast = i === ciclos.length - 1;
+    return `
+    <div style="display:flex;${isLast ? "" : "margin-bottom:20px;"}">
+      <div style="width:3px;flex-shrink:0;border-radius:999px;background:${r.accent};margin-right:18px;"></div>
+      <div style="flex:1;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#0f172a;margin-bottom:6px;">${r.emoji ? r.emoji + " " : ""}${r.label}</div>
+        <div style="font-size:17px;font-weight:900;color:#0f172a;letter-spacing:-0.3px;margin-bottom:3px;">${c.nombreGenerico ?? c.nombre}</div>
+        <div style="font-size:11px;font-weight:600;color:#94a3b8;margin-bottom:8px;">${c.nombre} &nbsp;·&nbsp; ${c.area} &nbsp;·&nbsp; ${c.nivel}</div>
+        <div style="font-size:12px;color:#475569;line-height:1.65;">${c.descripcion}</div>
+      </div>
+    </div>`;
+  }).join("");
 
-  return `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Informe Descubre-T</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f8f8f8;
-      color: #222;
-      padding: 32px 16px;
-    }
-    /* A4 layout at 96dpi: 8.27in * 96 = 794px width */
-    .page {
-      width: 794px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 0.5rem;
-      overflow: hidden;
-      box-shadow: none;
-      padding: 24px 0;
-    }
-    /* Stronger app gradient used in header and accents */
-    .header {
-      background: linear-gradient(90deg, #ff6b35 0%, #ff8a50 40%, #f7931e 100%);
-      padding: 28px 32px 24px;
-      color: #fff;
-    }
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    /* Vocational area row centered vertically and more prominent */
-    .familia-row { display:flex; align-items:center; justify-content:flex-start; gap:18px; margin: 18px 0; }
-    .header h1 { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
-    .header .subtitle { font-size: 13px; opacity: 0.88; margin-top: 4px; }
-    .header .centro-tag {
-      font-size: 11px;
-      font-weight: 700;
-      text-align: right;
-      opacity: 0.85;
-      line-height: 1.4;
-    }
+  const profileItems: string[] = [];
+  if (data.perfil?.centro) profileItems.push(`<div style="flex:1;padding-right:20px;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.45);margin-bottom:3px;">Centro</div><div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.95);">${data.perfil.centro}</div></div>`);
+  if (data.perfil?.genero)  profileItems.push(`<div style="flex:1;padding:0 20px;border-left:1px solid rgba(255,255,255,0.12);"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.45);margin-bottom:3px;">Género</div><div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.95);">${data.perfil.genero}</div></div>`);
+  if (data.perfil?.edad)    profileItems.push(`<div style="flex:1;padding:0 20px;border-left:1px solid rgba(255,255,255,0.12);"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.45);margin-bottom:3px;">Edad</div><div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.95);">${data.perfil.edad} años</div></div>`);
+  profileItems.push(`<div style="flex:1;padding-left:${profileItems.length > 0 ? "20px" : "0"};${profileItems.length > 0 ? "border-left:1px solid rgba(255,255,255,0.12);" : ""}"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.45);margin-bottom:3px;">Fecha</div><div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.95);">${fecha}</div></div>`);
 
-    .body { padding: 20px 36px; }
+  const profileStrip = profileItems.length > 0
+    ? `<div style="background:#0f172a;padding:16px 40px;display:flex;gap:0;">${profileItems.join("")}</div>`
+    : "";
 
-    .section-title {
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #ff6b35;
-      margin-bottom: 10px;
-    }
-    .section { margin-bottom: 28px; }
+  return `<style>* { box-sizing: border-box; margin: 0; padding: 0; } div { font-family: 'Segoe UI', system-ui, Arial, sans-serif; }</style>
+  <div style="width:794px;margin:0 auto;background:#fff;display:block;">
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .td-label { color: #888; width: 140px; padding: 5px 0; font-weight: 600; }
-    td { padding: 5px 0; }
-
-    .familia-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(90deg, #ff6b35 0%, #ff8a50 50%, #f7931e 100%);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 900;
-      border-radius: 12px;
-      padding: 10px 20px;
-      box-shadow: 0 6px 18px rgba(247,147,30,0.12);
-      transform: translateY(0);
-    }
-
-    .ciclo {
-      border: 1.5px solid #ececec;
-      border-radius: 12px;
-      padding: 16px 18px;
-      margin-bottom: 12px;
-    }
-    .ciclo-top {
-      border-color: transparent;
-      background: linear-gradient(180deg, #fff8f5 0%, #fff 100%);
-      box-shadow: 0 2px 0 rgba(255,107,53,0.02), 0 6px 18px rgba(255,107,53,0.06) inset;
-      position: relative;
-    }
-    .ciclo-top:before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 4px;
-      width: 100%;
-      background: linear-gradient(90deg,#ff6b35,#ff8a50,#f7931e);
-      border-top-left-radius: 12px;
-      border-top-right-radius: 12px;
-    }
-    .ciclo-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #ff6b35;
-      margin-bottom: 6px;
-    }
-    .ciclo-nombre { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
-    .ciclo-meta { font-size: 11px; color: #888; margin-bottom: 8px; }
-    .ciclo-desc { font-size: 12px; color: #555; line-height: 1.55; margin-bottom: 10px; }
-
-    .footer {
-      border-top: 1px solid #f0f0f0;
-      padding: 18px 32px;
-      font-size: 10px;
-      color: #aaa;
-      text-align: center;
-      line-height: 1.6;
-    }
-
-    .print-btn {
-      display: block;
-      width: 220px;
-      margin: 24px auto 0;
-      padding: 12px 0;
-      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-      color: #fff;
-      font-size: 14px;
-      font-weight: 700;
-      text-align: center;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    @media print {
-      body { background: #fff; padding: 0; }
-      .page { box-shadow: none; border-radius: 0; }
-      .print-btn { display: none; }
-    }
-  </style>
-</head>
-<body>
-  <div class="page">
-    <div class="header">
-      <div class="header-top">
-        <div>
-          <div class="subtitle">Informe de Orientación Vocacional</div>
-          <h1>Descubre-T</h1>
+    <!-- HEADER: gradiente accent de la app naranja→azul -->
+    <div style="background:linear-gradient(135deg,#ff6b35 0%,#7b6ef0 50%,#3b82f6 100%);padding:36px 44px 32px;position:relative;overflow:hidden;">
+      <!-- Decoradores circulares -->
+      <div style="position:absolute;top:-70px;right:-70px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,0.06);"></div>
+      <div style="position:absolute;bottom:-90px;right:140px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
+      <div style="position:absolute;top:20px;left:320px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
+      <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;">
+        <!-- Logo + nombre centro -->
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="width:60px;height:60px;background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
+            <img src="/logo.png" style="width:52px;height:52px;border-radius:10px;object-fit:contain;" />
+          </div>
+          <div>
+            <div style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.4px;line-height:1.1;">CPIFP El Arenal</div>
+            <div style="font-size:10.5px;color:rgba(255,255,255,0.72);margin-top:3px;font-weight:500;">Centro Público Integrado de Formación Profesional</div>
+          </div>
         </div>
-        <div class="centro-tag">CPIFP El Arenal<br/>Programa Dualiza-Orienta</div>
+        <!-- Título informe -->
+        <div style="text-align:right;">
+          <div style="font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.14em;color:rgba(255,255,255,0.65);margin-bottom:6px;">Informe de Orientación Vocacional</div>
+          <div style="font-size:30px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1;margin-bottom:6px;">Descubre-T</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);font-weight:500;">${fecha}</div>
+        </div>
       </div>
     </div>
 
-    <div class="body">
+    <!-- PROFILE STRIP: oscuro institucional -->
+    ${profileStrip}
 
-      <div class="section">
-        <div class="section-title">Perfil del estudiante</div>
-        <table>
-          <tbody>${perfilRows}</tbody>
-        </table>
+    <!-- BODY -->
+    <div style="padding:30px 44px 28px;">
+
+      <!-- ÁREA VOCACIONAL -->
+      <div style="font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.14em;color:#ff6b35;margin-bottom:10px;">Tu área vocacional detectada</div>
+      <div style="margin-bottom:30px;">
+        <div style="font-size:22px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;margin-bottom:5px;">${familiaLabel}</div>
+        <div style="font-size:12px;color:#64748b;line-height:1.7;">Basándonos en tus respuestas, tu perfil muestra mayor afinidad con esta área. A continuación encontrarás los ciclos que mejor encajan con tus intereses y competencias.</div>
       </div>
 
-      <div class="section">
-        <div class="section-title">Área vocacional detectada</div>
-        <div class="familia-badge">${familiaLabel}</div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Ciclos formativos recomendados</div>
-        ${ciclosHTML}
-      </div>
+      <!-- CICLOS -->
+      <div style="font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.14em;color:#ff6b35;margin-bottom:13px;">Ciclos formativos recomendados</div>
+      ${ciclosHTML}
 
     </div>
 
-    <div class="footer">
-      Este informe ha sido generado por la plataforma Descubre-T — CPIFP El Arenal.<br/>
-      La selección de ciclos se basa exclusivamente en tus competencias, libre de estereotipos de género.<br/>
-      Programa Dualiza-Orienta 2025-2026.
+    <!-- FOOTER -->
+    <div style="background:#1e1e2e;padding:18px 44px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-size:10px;color:rgba(255,255,255,0.45);line-height:1.7;">
+        Generado por la plataforma <span style="color:rgba(255,255,255,0.7);font-weight:700;">Descubre-T</span> · CPIFP El Arenal<br/>
+        Selección libre de estereotipos de género · Programa Dualiza-Orienta 2025-2026
+      </div>
+      <div style="font-size:11px;color:rgba(255,107,53,0.6);font-weight:900;text-transform:uppercase;letter-spacing:0.12em;">descubre-t</div>
     </div>
-  </div>
-</body>
-</html>`;
+
+  </div>`;
 }
 
 const Results = () => {
@@ -283,7 +161,7 @@ const Results = () => {
 
         // Create an offscreen container and inject the HTML
         const wrapper = document.createElement("div");
-        wrapper.style.position = "fixed";
+        wrapper.style.position = "absolute";
         wrapper.style.left = "-9999px";
         wrapper.style.top = "0";
         wrapper.style.width = "794px"; // A4 width at 96dpi
@@ -298,7 +176,15 @@ const Results = () => {
         // Wait a tick for fonts/images to load
         await new Promise((r) => setTimeout(r, 300));
 
-        const canvas = await html2canvas(wrapper, { scale: 2, useCORS: true });
+        const fullHeight = wrapper.scrollHeight;
+        const canvas = await html2canvas(wrapper, {
+          scale: 2,
+          useCORS: true,
+          width: 794,
+          height: fullHeight,
+          windowWidth: 794,
+          windowHeight: fullHeight,
+        });
 
         // PDF page dimensions in points (A4)
         const pagePtWidth = 595.28;
@@ -315,9 +201,10 @@ const Results = () => {
         const pagePxHeight = Math.floor(pagePtHeight * pxPerPt);
 
         let y = 0;
-        const ctx = sourceCanvas.getContext("2d");
         while (y < imgPxHeight) {
           const sliceH = Math.min(pagePxHeight, imgPxHeight - y);
+          const isLastSlice = y + sliceH >= imgPxHeight;
+
           const pageCanvas = document.createElement("canvas");
           pageCanvas.width = imgPxWidth;
           pageCanvas.height = sliceH;
@@ -328,11 +215,13 @@ const Results = () => {
           const pagePngBytes = await (await fetch(pageDataUrl)).arrayBuffer();
           const pageImage = await pdfDoc.embedPng(pagePngBytes);
 
-          const page = pdfDoc.addPage([pagePtWidth, pagePtHeight]);
           const scaledHeight = (pagePtWidth / pageImage.width) * pageImage.height;
+          // For the last slice use the exact content height so there's no blank space at the bottom
+          const pageH = isLastSlice ? scaledHeight : pagePtHeight;
+          const page = pdfDoc.addPage([pagePtWidth, pageH]);
           page.drawImage(pageImage, {
             x: 0,
-            y: pagePtHeight - scaledHeight,
+            y: isLastSlice ? 0 : pagePtHeight - scaledHeight,
             width: pagePtWidth,
             height: scaledHeight,
           });
