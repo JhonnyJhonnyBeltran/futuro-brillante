@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check } from "lucide-react";
 import { PREGUNTAS_FASE1, PREGUNTAS_FASE2 } from "@/data/preguntas";
 import type { FamiliaKey } from "@/data/ciclos";
@@ -164,6 +164,7 @@ const Cuestionario = () => {
   const [submissionId, setSubmissionId] = useState("");
   const [duracionSegundos, setDuracionSegundos] = useState<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const scrollRef = useRef<HTMLElement | null>(null);
 
   const preguntaActual = useMemo(() => {
     if (step < 6) return PREGUNTAS_FASE1[step];
@@ -172,6 +173,11 @@ const Cuestionario = () => {
   }, [step, familiaDetectada]);
 
   const respuestaActual = preguntaActual ? respuestas[preguntaActual.id] : undefined;
+
+  useEffect(() => {
+    if (!perfilEnviado || resultado) return;
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step, perfilEnviado, resultado]);
 
   const buildStatsPayload = useCallback((questionMap: Record<string, string>) => {
     const surveyQuestions = [...PREGUNTAS_FASE1, ...(familiaDetectada ? PREGUNTAS_FASE2[familiaDetectada] : [])];
@@ -426,6 +432,7 @@ const Cuestionario = () => {
       <ProgressTrack step={fasoPaso} total={fasoTotal} />
 
       <main
+        ref={scrollRef}
         className="shell-scroll px-4 sm:px-5 md:px-6"
         style={{ paddingBottom: "1.25rem" }}
       >
