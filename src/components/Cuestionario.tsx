@@ -222,15 +222,34 @@ const Cuestionario = () => {
   const handlePerfilSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!centro.trim() || !genero || !edad) {
-      toast.error("Por favor, rellena todos los campos obligatorios.", {
-        description: "Necesitamos estos datos para continuar.",
-        duration: 1500,
+    const errores: string[] = [];
+    const centroLimpio = centro.trim();
+    const edadNumero = Number(edad);
+
+    if (!centroLimpio) {
+      errores.push("centro educativo");
+    }
+
+    if (!genero) {
+      errores.push("género");
+    }
+
+    if (!edad) {
+      errores.push("edad");
+    } else if (!Number.isFinite(edadNumero) || edadNumero < 16 || edadNumero > 65) {
+      errores.push("edad válida (entre 16 y 65)");
+    }
+
+    if (errores.length > 0) {
+      toast.error("Revisa el formulario antes de continuar.", {
+        description: `Faltan o son incorrectos: ${errores.join(", ")}.`,
+        duration: 3000,
         className: "pointer-events-none",
       });
       return;
     }
 
+    setCentro(centroLimpio);
     startTimeRef.current = Date.now();
     setPerfilEnviado(true);
   };
@@ -339,7 +358,7 @@ const Cuestionario = () => {
             </p>
           </div>
 
-          <form onSubmit={handlePerfilSubmit} className="anim-fade-up" style={{ animationDelay: "80ms" }}>
+          <form onSubmit={handlePerfilSubmit} noValidate className="anim-fade-up" style={{ animationDelay: "80ms" }}>
             <div className="question-card">
               <div className="px-5 pt-5 pb-2 flex flex-col gap-4">
 
