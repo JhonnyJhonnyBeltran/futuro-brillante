@@ -24,8 +24,8 @@ interface ResultsData {
   duracionSegundos?: number | null;
 }
 
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
+function arrayBufferToBase64(buffer: ArrayBufferLike | Uint8Array): string {
+  const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
   let binary = "";
 
   for (let index = 0; index < bytes.length; index += 0x8000) {
