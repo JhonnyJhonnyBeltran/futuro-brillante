@@ -80,6 +80,37 @@ const PESOS_FAMILIA: Record<FamiliaKey, Record<string, number>> = {
 const ALPHA = 0.3; // peso de la señal de familia vs ciclo (0..1)
 const SOFTMAX_BETA = 2.5; // controla la nitidez de la softmax (mayor = más enfocada)
 
+const NIVEL_CICLO_RANK: Record<string, number> = {
+  "Grado Básico": 0,
+  "Grado Medio": 1,
+  "Certificado de Especialidad": 1.5,
+  "Grado Superior": 2,
+};
+
+const NIVEL_OBJETIVO_POR_RESPUESTA: Record<string, number | null> = {
+  A: 0,
+  B: 1,
+  C: 2,
+  D: null,
+};
+
+function getNivelObjetivoAcademico(respuestas: Record<string, string>) {
+  return NIVEL_OBJETIVO_POR_RESPUESTA[respuestas.P10] ?? null;
+}
+
+function getCompatibilidadAcademica(
+  nivelCiclo: string,
+  nivelObjetivo: number | null,
+) {
+  if (nivelObjetivo === null) return 0;
+
+  const nivelCicloRank = NIVEL_CICLO_RANK[nivelCiclo] ?? 1;
+
+  if (nivelCicloRank === nivelObjetivo) return 2;
+  if (nivelCicloRank < nivelObjetivo) return 1;
+  return 0;
+}
+
 function computeMaxFamilyScores(): Record<FamiliaKey, number> {
   const maxScores: Record<FamiliaKey, number> = {
     FABRICACION: 0,
@@ -251,6 +282,7 @@ export function calcularRecomendaciones(
 > {
   const familiaScores = calcularScoresFamilia(respuestas);
   const maxFamilyScores = computeMaxFamilyScores();
+  const nivelObjetivoAcademico = getNivelObjetivoAcademico(respuestas);
 
   let puntuados = ciclos
     .map((ciclo) => {
@@ -275,10 +307,12 @@ export function calcularRecomendaciones(
 
       const finalScore =
         ALPHA * normalizedFamily + (1 - ALPHA) * normalizedCiclo;
+      const scoreOrdenado =
+        finalScore + getCompatibilidadAcademica(ciclo.nivel, nivelObjetivoAcademico);
 
       return {
         ...ciclo,
-        puntuacion: finalScore,
+        puntuacion: scoreOrdenado,
         familyUsed,
       } as CicloConPuntuacion & { familyUsed: FamiliaKey };
     })

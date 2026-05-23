@@ -47,9 +47,9 @@ export const PREGUNTAS_FASE1: Pregunta[] = [
     texto: "¿Qué se te da mejor o qué dicen los demás de ti?",
     opciones: [
       { clave: "A", texto: "Que soy constante y termino lo que empiezo" },
-      { clave: "B", texto: "Que soy curioso y me gusta saber cómo funcionan las cosas" },
+      { clave: "B", texto: "Que soy curioso/a y me gusta saber cómo funcionan las cosas" },
       { clave: "C", texto: "Que me manejo bien con herramientas y materiales" },
-      { clave: "D", texto: "Que tengo buenas ideas y soy creativo" },
+      { clave: "D", texto: "Que tengo buenas ideas y soy creativo/a" },
       { clave: "E", texto: "Que aprendo rápido cuando algo cambia" },
     ],
   },
@@ -126,7 +126,7 @@ const PREGUNTAS_FABRICACION: Pregunta[] = [
     familia: "FABRICACION",
     texto: "¿Cómo aprenderías mejor a fabricar cosas?",
     opciones: [
-      { clave: "A", texto: "Con herramientas manuales y un profesor al lado" },
+      { clave: "A", texto: "Con herramientas manuales y un profesor/a al lado" },
       { clave: "B", texto: "Usando máquinas reales con supervisión" },
       { clave: "C", texto: "Con programas de ordenador que simulan el trabajo" },
       { clave: "D", texto: "Con plantillas y guías para planificar el proceso" },
@@ -176,7 +176,7 @@ const PREGUNTAS_ELECTRICA: Pregunta[] = [
     id: "P9",
     fase: 2,
     familia: "ELECTRICA",
-    texto: "¿Qué te haría sentir más orgulloso en este trabajo?",
+    texto: "¿Qué te haría sentir más orgulloso/a en este trabajo?",
     opciones: [
       { clave: "A", texto: "Encontrar un apagón o avería y arreglarlo de forma segura" },
       { clave: "B", texto: "Ajustar una máquina grande con ayuda" },
@@ -278,10 +278,10 @@ const PREGUNTAS_GESTION: Pregunta[] = [
     id: "P9",
     fase: 2,
     familia: "GESTION",
-    texto: "¿Con qué tareas te sientes más cómodo?",
+    texto: "¿Con qué tareas te sientes más cómodo/a?",
     opciones: [
       { clave: "A", texto: "Hablar con la gente y prevenir problemas" },
-      { clave: "B", texto: "Coordinarme con los compañeros técnicos" },
+      { clave: "B", texto: "Coordinarme con los compañeros y compañeras técnicas" },
       { clave: "C", texto: "Leer, escribir y rellenar documentos bien hechos" },
       { clave: "D", texto: "Coordinar equipos y gestionar la documentación administrativa" },
     ],

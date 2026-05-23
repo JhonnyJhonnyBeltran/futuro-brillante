@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Download } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 import Header from "@/components/Header";
 import ResultCard from "@/components/ResultCard";
 import SorteoModal from "@/components/SorteoModal";
@@ -21,6 +22,18 @@ interface ResultsData {
   perfil?: Perfil;
   submissionId?: string;
   duracionSegundos?: number | null;
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+
+  for (let index = 0; index < bytes.length; index += 0x8000) {
+    const chunk = bytes.subarray(index, index + 0x8000);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
 }
 
 
@@ -231,21 +244,44 @@ const Results = () => {
 
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes as unknown as ArrayBuffer], { type: "application/pdf" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "informe-descubre-t.pdf";
-        a.click();
 
-        // cleanup
+        if (Capacitor.isNativePlatform()) {
+          const { Filesystem, Directory } = await import("@capacitor/filesystem");
+          const { FileOpener } = await import("@capacitor-community/file-opener");
+
+          const fileName = `informe-descubre-t-${Date.now()}.pdf`;
+          const base64Data = arrayBufferToBase64(pdfBytes);
+          const savedFile = await Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.Cache,
+          });
+
+          await FileOpener.open({
+            filePath: savedFile.uri,
+            contentType: "application/pdf",
+            openWithDefault: true,
+          });
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "informe-descubre-t.pdf";
+          a.click();
+
+          // cleanup
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+          }, 300);
+        }
+
+        // cleanup wrapper
         setTimeout(() => {
           try {
             document.body.removeChild(wrapper);
           } catch (err) {
-            // Non-fatal cleanup error — log for debugging
             console.warn("Failed to remove temp wrapper", err);
           }
-          URL.revokeObjectURL(url);
         }, 300);
 
         trackEvent("report_download", { submission_id: data.submissionId });
