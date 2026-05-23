@@ -1,50 +1,52 @@
-import { ArrowLeft, BadgeInfo, Database, FileText, ShieldCheck, Clock3, Users } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, BadgeInfo, FileText, ShieldCheck, Clock3, Users, Database } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const sections = [
   {
     icon: FileText,
     title: "Qué datos trata la app",
     body: [
-      "Datos del cuestionario de orientación: respuestas, familia o ciclo recomendado, centro, género, edad y duración aproximada del test. Solo se envían si aceptas la política de privacidad en el formulario.",
-      "Datos del sorteo: nombre completo y correo electrónico, solo si decides participar.",
-      "Datos técnicos y de uso: eventos de inicio, visualización de resultados y actividad necesaria para mejorar la experiencia y detectar errores, solo cuando aceptas el cuestionario o el sorteo.",
+      "Datos del cuestionario de orientación: respuestas, familia o ciclo recomendado, centro, género, edad y duración aproximada del test. El envío y el tratamiento de estos datos requieren tu consentimiento expreso: sin consentimiento no se puede iniciar ni completar el cuestionario desde la app.",
+      "Datos del sorteo: nombre completo y correo electrónico, solo si decides participar y marcas la casilla correspondiente.",
+      "Datos técnicos y de uso: eventos de inicio, visualización de resultados y eventos de diagnóstico. Estos eventos se registran únicamente si autorizas la analítica al aceptar el cuestionario o al inscribirte en el sorteo.",
     ],
   },
   {
     icon: ShieldCheck,
     title: "Para qué se usan",
     body: [
-      "Generar recomendaciones académicas y el informe de resultados.",
-      "Gestionar la inscripción voluntaria en el sorteo.",
-      "Medir el uso de la app y corregir incidencias técnicas.",
+      "Generar las recomendaciones académicas y el informe descargable con tu perfil.",
+      "Gestionar la inscripción voluntaria en el sorteo y contactar a los ganadores cuando proceda.",
+      "Medir el uso de la aplicación y corregir incidencias técnicas —solo con tu consentimiento— para mejorar la experiencia.",
+      "Si no otorgas consentimiento, no podrás utilizar el cuestionario dentro de la app; puedes solicitar alternativas o información al centro responsable.",
     ],
   },
   {
     icon: Database,
     title: "Base legal y destinatarios",
     body: [
-      "El tratamiento del cuestionario y del sorteo se apoya en tu consentimiento. La analítica solo se activa si aceptas el cuestionario o el sorteo.",
-      "Los datos se almacenan en Supabase, que actúa como proveedor tecnológico del proyecto.",
-      "No se venden datos personales ni se usan para publicidad comportamental.",
+      "La base legal del tratamiento para el cuestionario y el sorteo es el consentimiento informado que das en la propia app.",
+      "Los datos enviados se almacenan en Supabase (proveedor tecnológico). Solo se compartirán con terceros cuando sea necesario para prestar el servicio o por obligación legal.",
+      "No vendemos ni cedemos tus datos para publicidad comportamental.",
     ],
   },
   {
     icon: Clock3,
     title: "Conservación",
     body: [
-      "Las respuestas del cuestionario se conservan el tiempo necesario para generar el informe y prestar el servicio educativo.",
-      "Los datos del sorteo se conservan hasta su resolución o durante el periodo administrativo necesario.",
-      "Si el centro decide borrar la información, los datos podrán eliminarse o anonimizarse conforme a su política interna.",
+      "Si aceptas el envío del cuestionario, las respuestas se conservan el tiempo necesario para generar el informe y prestar el servicio educativo.",
+      "Si no das tu consentimiento, no se realizará ningún envío ni tratamiento de tus respuestas en el servidor; no existe una opción de procesamiento sólo local para completar el cuestionario dentro de la app.",
+      "Los datos del sorteo se conservarán hasta su resolución o el periodo administrativo necesario para gestionar el premio.",
     ],
   },
   {
     icon: Users,
-    title: "Tus derechos",
+    title: "Tus derechos y cómo retirar el consentimiento",
     body: [
-      "Puedes solicitar acceso, rectificación, supresión, oposición, limitación y portabilidad cuando proceda.",
-      "También puedes retirar tu consentimiento para el sorteo en cualquier momento antes del cierre de la inscripción.",
-      "Para ejercer derechos, usa los canales oficiales del centro o el contacto designado para el programa Descubre-T.",
+      "Tienes derecho de acceso, rectificación, supresión, oposición, limitación y portabilidad cuando proceda —dirígete al centro responsable o al contacto designado para Descubre-T.",
+      "Si quieres retirar el consentimiento para el sorteo, ponte en contacto con el centro antes del cierre de la inscripción y tu participación será eliminada.",
+      "Si diste consentimiento para enviar el cuestionario y quieres que tus datos sean eliminados del servidor, solicita su supresión indicando el `submissionId` (si lo conservas) o la fecha aproximada del envío; el centro gestionará la petición.",
+      "Para revocar la analítica localmente, borra los datos del sitio en tu navegador o solicita la retirada por los canales del centro —la configuración se guarda en el almacenamiento local (`descubre-t_analytics_consent`).",
     ],
   },
 ];
@@ -126,14 +128,12 @@ const PrivacyPolicy = () => {
             <div className="rounded-2xl border border-border bg-[hsl(var(--muted))] p-4 text-left">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Resumen rápido</p>
               <p className="mt-2 text-sm font-semibold text-foreground">
-                El cuestionario es orientativo; el sorteo es opcional; los datos no se usan para publicidad.
+                El cuestionario requiere consentimiento expreso; el sorteo es opcional; los datos no se usan para publicidad.
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-[hsl(var(--muted))] p-4 text-left">
               <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Responsable</p>
-              <p className="mt-2 text-sm font-semibold text-foreground">
-                CPIFP El Arenal / programa Descubre-T.
-              </p>
+              <p className="mt-2 text-sm font-semibold text-foreground">CPIFP El Arenal / programa Descubre-T.</p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                 Usa los canales oficiales del centro para solicitudes formales de privacidad.
               </p>
