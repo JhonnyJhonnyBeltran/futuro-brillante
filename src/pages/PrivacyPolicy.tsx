@@ -6,9 +6,9 @@ const sections = [
     icon: FileText,
     title: "Qué datos trata la app",
     body: [
-      "Datos del cuestionario de orientación: respuestas, familia o ciclo recomendado, centro, género, edad y duración aproximada del test.",
+      "Datos del cuestionario de orientación: respuestas, familia o ciclo recomendado, centro, género, edad y duración aproximada del test. Solo se envían si aceptas la política de privacidad en el formulario.",
       "Datos del sorteo: nombre completo y correo electrónico, solo si decides participar.",
-      "Datos técnicos y de uso: eventos de inicio, visualización de resultados y actividad necesaria para mejorar la experiencia y detectar errores.",
+      "Datos técnicos y de uso: eventos de inicio, visualización de resultados y actividad necesaria para mejorar la experiencia y detectar errores, solo cuando aceptas el cuestionario o el sorteo.",
     ],
   },
   {
@@ -24,7 +24,7 @@ const sections = [
     icon: Database,
     title: "Base legal y destinatarios",
     body: [
-      "El tratamiento del sorteo se apoya en tu consentimiento. La analítica solo se activa si aceptas el banner de consentimiento de uso.",
+      "El tratamiento del cuestionario y del sorteo se apoya en tu consentimiento. La analítica solo se activa si aceptas el cuestionario o el sorteo.",
       "Los datos se almacenan en Supabase, que actúa como proveedor tecnológico del proyecto.",
       "No se venden datos personales ni se usan para publicidad comportamental.",
     ],

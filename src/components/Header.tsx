@@ -1,6 +1,30 @@
-import { Link } from "react-router-dom";
+import { useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
-const Header = () => {
+interface HeaderProps {
+  warnOnPrivacyAccess?: boolean;
+  onPrivacyAccess?: () => void;
+}
+
+const Header = ({ warnOnPrivacyAccess = false, onPrivacyAccess }: HeaderProps) => {
+  const navigate = useNavigate();
+
+  const handlePrivacyAccess = useCallback(() => {
+    onPrivacyAccess?.();
+    navigate("/privacidad");
+  }, [navigate, onPrivacyAccess]);
+
   return (
     <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-border safe-top">
       <div className="flex items-center justify-between gap-3 px-6 py-4">
@@ -12,12 +36,39 @@ const Header = () => {
           </div>
         </div>
 
-        <Link
-          to="/privacidad"
-          className="rounded-full border border-border bg-white px-3 py-1.5 text-[11px] font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
-        >
-          Privacidad
-        </Link>
+        {warnOnPrivacyAccess ? (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                type="button"
+                className="rounded-full border border-border bg-white px-3 py-1.5 text-[11px] font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+              >
+                Privacidad
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Salir del cuestionario?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Si accedes a la política de privacidad ahora, se perderá el progreso del cuestionario y
+                  tendrás que volver a empezar cuando regreses.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handlePrivacyAccess}>Ir a privacidad</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : (
+          <Link
+            to="/privacidad"
+            onClick={handlePrivacyAccess}
+            className="rounded-full border border-border bg-white px-3 py-1.5 text-[11px] font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+          >
+            Privacidad
+          </Link>
+        )}
       </div>
     </header>
   );

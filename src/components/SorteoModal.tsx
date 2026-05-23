@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { toast } from "sonner";
-import { submitRaffle } from "@/lib/supabase";
+import { setAnalyticsConsent, submitRaffle } from "@/lib/supabase";
 
 interface Props {
   open: boolean;
@@ -81,6 +81,7 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
     const result = await submitRaffle({ nombreCompleto: nombreLimpio, email: emailLimpio });
     setEnviando(false);
     if (result.success) {
+      setAnalyticsConsent(true);
       onSuccess();
     } else {
       toast.error("Ha ocurrido un error. Por favor, inténtalo de nuevo.", {
@@ -201,8 +202,7 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
                 Consiento el tratamiento de mis datos personales (nombre y correo) para la gestión
                 de este sorteo, conforme al <strong>RGPD (UE) 2016/679</strong> y la{" "}
                 <strong>LOPDGDD 3/2018</strong>. Esta participación es <strong>voluntaria</strong>{" "}
-                y completamente ajena al cuestionario de orientación, el cual es anónimo y no puede
-                relacionarse con estos datos.
+                y también autoriza la analítica de uso asociada a esta experiencia.
               </span>
             </label>
 

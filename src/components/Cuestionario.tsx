@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import { PREGUNTAS_FASE1, PREGUNTAS_FASE2 } from "@/data/preguntas";
 import type { FamiliaKey } from "@/data/ciclos";
 import type { CicloConPuntuacion } from "@/data/ciclos";
 import { calcularRecomendaciones, detectarFamilia } from "@/lib/scoring-v2";
 import Header from "@/components/Header";
 import ResultadosCiclos from "@/components/ResultadosCiclos";
-import { submitQuiz } from "@/lib/supabase";
+import { setAnalyticsConsent, submitQuiz } from "@/lib/supabase";
 import {
   Select,
   SelectContent,
@@ -146,6 +147,50 @@ const selectTriggerClass = cn(
   "hover:border-primary/40",
 );
 
+const QUESTIONNAIRE_DRAFT_KEY = "descubre-t_questionnaire_draft";
+
+interface QuestionnaireDraft {
+  centro: string;
+  genero: string;
+  edad: string;
+  aceptaPrivacidad: boolean;
+}
+
+function readQuestionnaireDraft(): QuestionnaireDraft {
+  if (typeof window === "undefined") {
+    return { centro: "", genero: "", edad: "", aceptaPrivacidad: false };
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(QUESTIONNAIRE_DRAFT_KEY);
+    if (!raw) {
+      return { centro: "", genero: "", edad: "", aceptaPrivacidad: false };
+    }
+
+    const parsed = JSON.parse(raw) as Partial<QuestionnaireDraft>;
+    return {
+      centro: parsed.centro ?? "",
+      genero: parsed.genero ?? "",
+      edad: parsed.edad ?? "",
+      aceptaPrivacidad: parsed.aceptaPrivacidad ?? false,
+    };
+  } catch {
+    return { centro: "", genero: "", edad: "", aceptaPrivacidad: false };
+  }
+}
+
+function saveQuestionnaireDraft(draft: QuestionnaireDraft) {
+  if (typeof window === "undefined") return;
+
+  window.sessionStorage.setItem(QUESTIONNAIRE_DRAFT_KEY, JSON.stringify(draft));
+}
+
+function clearQuestionnaireDraft() {
+  if (typeof window === "undefined") return;
+
+  window.sessionStorage.removeItem(QUESTIONNAIRE_DRAFT_KEY);
+}
+
 const Cuestionario = () => {
   const [step, setStep] = useState(0);
   const [respuestas, setRespuestas] = useState<Record<string, string>>({});
@@ -156,9 +201,10 @@ const Cuestionario = () => {
 
   // Perfil previo al cuestionario
   const [perfilEnviado, setPerfilEnviado] = useState(false);
-  const [centro, setCentro] = useState("");
-  const [genero, setGenero] = useState("");
-  const [edad, setEdad] = useState("");
+  const [centro, setCentro] = useState(() => readQuestionnaireDraft().centro);
+  const [genero, setGenero] = useState(() => readQuestionnaireDraft().genero);
+  const [edad, setEdad] = useState(() => readQuestionnaireDraft().edad);
+  const [aceptaPrivacidad, setAceptaPrivacidad] = useState(() => readQuestionnaireDraft().aceptaPrivacidad);
 
   // Datos del envío
   const [submissionId, setSubmissionId] = useState("");
@@ -178,6 +224,10 @@ const Cuestionario = () => {
     if (!perfilEnviado || resultado) return;
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [step, perfilEnviado, resultado]);
+
+  useEffect(() => {
+    saveQuestionnaireDraft({ centro, genero, edad, aceptaPrivacidad });
+  }, [centro, genero, edad, aceptaPrivacidad]);
 
   const buildStatsPayload = useCallback((questionMap: Record<string, string>) => {
     const surveyQuestions = [...PREGUNTAS_FASE1, ...(familiaDetectada ? PREGUNTAS_FASE2[familiaDetectada] : [])];
@@ -240,6 +290,10 @@ const Cuestionario = () => {
       errores.push("edad válida (entre 16 y 65)");
     }
 
+    if (!aceptaPrivacidad) {
+      errores.push("aceptación de la política de privacidad");
+    }
+
     if (errores.length > 0) {
       toast.error("Revisa el formulario antes de continuar.", {
         description: `Faltan o son incorrectos: ${errores.join(", ")}.`,
@@ -251,6 +305,7 @@ const Cuestionario = () => {
 
     setCentro(centroLimpio);
     startTimeRef.current = Date.now();
+    setAnalyticsConsent(true);
     setPerfilEnviado(true);
   };
 
@@ -281,19 +336,33 @@ const Cuestionario = () => {
 
             const { questions, answers } = buildStatsPayload(nuevasRespuestas);
 
-            const result = await submitQuiz({
-              quizId: "cuestionario",
-              questions,
-              answers,
-              results: recs.slice(0, 3).map((r) => r.nombre),
-              centro,
-              genero,
-              edad,
-              durationSeconds: duracion,
-              metadata: { session_id: sessionId },
-            });
+            if (aceptaPrivacidad) {
+              const result = await submitQuiz({
+                quizId: "cuestionario",
+                questions,
+                answers,
+                results: recs.slice(0, 3).map((r) => r.nombre),
+                centro,
+                genero,
+                edad,
+                durationSeconds: duracion,
+                metadata: {
+                  session_id: sessionId,
+                  privacy_consent: true,
+                  privacy_consent_at: new Date().toISOString(),
+                },
+              });
 
-            setSubmissionId(result.submissionId ?? "");
+              setSubmissionId(result.submissionId ?? "");
+            } else {
+              setSubmissionId("");
+              toast.info("Resultados generados sin envío de datos.", {
+                description:
+                  "Has rechazado el tratamiento del cuestionario, así que el resultado se queda solo en este dispositivo.",
+                duration: 3500,
+                className: "pointer-events-none",
+              });
+            }
             setDuracionSegundos(duracion);
 
             transicionar(() => setResultado(recs));
@@ -303,7 +372,7 @@ const Cuestionario = () => {
         }
       }, 150);
     },
-    [step, respuestas, preguntaActual, transicionar, buildStatsPayload, centro, genero, edad],
+    [step, respuestas, preguntaActual, transicionar, buildStatsPayload, centro, genero, edad, aceptaPrivacidad],
   );
 
   const handleAtras = useCallback(() => {
@@ -335,6 +404,8 @@ const Cuestionario = () => {
     setCentro("");
     setGenero("");
     setEdad("");
+    setAceptaPrivacidad(false);
+    clearQuestionnaireDraft();
     setSubmissionId("");
     setDuracionSegundos(null);
     startTimeRef.current = null;
@@ -344,7 +415,10 @@ const Cuestionario = () => {
   if (!perfilEnviado) {
     return (
       <div className="mobile-shell">
-        <Header />
+        <Header
+          warnOnPrivacyAccess={perfilEnviado && !resultado}
+          onPrivacyAccess={perfilEnviado && !resultado ? clearQuestionnaireDraft : undefined}
+        />
         <main
           className="shell-scroll px-4 sm:px-5 md:px-6 pt-4 pb-6"
         >
@@ -354,7 +428,7 @@ const Cuestionario = () => {
               Cuéntanos un poco sobre ti
             </h2>
             <p className="text-sm text-muted-foreground mt-2 px-2">
-              Esta información es anónima y nos ayuda a mejorar la orientación vocacional.
+              Esta información se usa para generar tu informe de orientación y, si das tu consentimiento, para registrar el envío del cuestionario.
             </p>
           </div>
 
@@ -407,10 +481,32 @@ const Cuestionario = () => {
                     className={inputClass}
                   />
                 </div>
+
+                <label className="flex items-start gap-3 rounded-xl border border-border bg-[hsl(var(--muted))] p-4 text-left">
+                  <input
+                    type="checkbox"
+                    checked={aceptaPrivacidad}
+                    onChange={(e) => setAceptaPrivacidad(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 flex-shrink-0 rounded"
+                    style={{ accentColor: "hsl(var(--primary))" }}
+                  />
+                  <span className="text-xs leading-relaxed text-muted-foreground">
+                    He leído y acepto la{' '}
+                    <Link to="/privacidad" className="font-semibold text-primary hover:underline">
+                      política de privacidad
+                    </Link>
+                    . Entiendo que el cuestionario recoge centro educativo, género y edad, que estos datos solo se enviarán si marco esta casilla, y que también autorizo el uso de analítica de uso asociada a esta experiencia.
+                  </span>
+                </label>
               </div>
 
               <div className="px-5 py-4 mt-2 border-t border-border">
-                <button type="submit" className="btn-primary w-full tap-fast">
+                <button
+                  type="submit"
+                  disabled={!aceptaPrivacidad}
+                  className="btn-primary w-full tap-fast"
+                  style={{ opacity: !aceptaPrivacidad ? 0.45 : 1 }}
+                >
                   Comenzar el test
                 </button>
               </div>
@@ -447,7 +543,10 @@ const Cuestionario = () => {
 
   return (
     <div className="mobile-shell">
-      <Header />
+      <Header
+        warnOnPrivacyAccess={perfilEnviado && !resultado}
+        onPrivacyAccess={perfilEnviado && !resultado ? clearQuestionnaireDraft : undefined}
+      />
       <ProgressTrack step={fasoPaso} total={fasoTotal} />
 
       <main
