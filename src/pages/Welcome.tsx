@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ClipboardList, Sparkles, Compass, ChevronRight } from "lucide-react";
 import { trackEvent } from "@/lib/supabase";
 
@@ -118,6 +118,15 @@ const Welcome = () => {
             Comenzar el test
             <ChevronRight size={18} strokeWidth={2.5} />
           </button>
+
+          <div className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
+            <p>
+              El cuestionario es orientativo y guarda solo los datos necesarios para generar tu informe.
+            </p>
+            <Link to="/privacidad" className="font-semibold text-primary hover:underline">
+              Política de privacidad
+            </Link>
+          </div>
         </div>
       </main>
     </div>

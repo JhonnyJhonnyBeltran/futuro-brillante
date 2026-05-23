@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { submitRaffle } from "@/lib/supabase";
@@ -204,6 +205,14 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
                 relacionarse con estos datos.
               </span>
             </label>
+
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              Puedes ampliar esta información en la{' '}
+              <Link to="/privacidad" className="font-semibold text-primary hover:underline">
+                política de privacidad
+              </Link>
+              .
+            </p>
 
             <button
               type="submit"

@@ -7,8 +7,32 @@ const normalizedUrl = url.replace(/\/rest\/v1\/?$/, "").replace(/\/$/, "");
 
 export const supabase: SupabaseClient = createClient(normalizedUrl, anonKey);
 
+const ANALYTICS_CONSENT_KEY = "descubre-t_analytics_consent";
+
+function readStoredConsent(): boolean | null {
+  if (typeof window === "undefined") return null;
+
+  const storedValue = window.localStorage.getItem(ANALYTICS_CONSENT_KEY);
+  if (storedValue === null) return null;
+
+  return storedValue === "true";
+}
+
+export function getAnalyticsConsent(): boolean | null {
+  return readStoredConsent();
+}
+
+export function setAnalyticsConsent(accepted: boolean) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(ANALYTICS_CONSENT_KEY, accepted ? "true" : "false");
+}
+
 export async function trackEvent(event: string, data: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
+
+  const analyticsConsent = readStoredConsent();
+  if (analyticsConsent !== true) return;
+
   try {
     if (supabase) {
       supabase.from("events").insert([{ event, data, created_at: new Date().toISOString() }]);
@@ -17,7 +41,6 @@ export async function trackEvent(event: string, data: Record<string, unknown> = 
   } catch (error) {
     void error;
   }
-  console.log("[trackEvent]", event, data);
 }
 
 export interface SubmitQuizPayload {
