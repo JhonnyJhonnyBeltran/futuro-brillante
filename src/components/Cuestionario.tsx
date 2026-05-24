@@ -427,9 +427,6 @@ const Cuestionario = () => {
             <h2 className="text-[1.15rem] sm:text-[1.25rem] font-black text-foreground leading-tight mt-2">
               Cuéntanos un poco sobre ti
             </h2>
-            <p className="text-sm text-muted-foreground mt-2 px-2">
-              Esta información se usa para generar tu informe de orientación y, si das tu consentimiento, para registrar el envío del cuestionario.
-            </p>
           </div>
 
           <form onSubmit={handlePerfilSubmit} noValidate className="anim-fade-up" style={{ animationDelay: "80ms" }}>

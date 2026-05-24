@@ -8,7 +8,7 @@ const sections = [
     body: [
       "Datos del cuestionario de orientación: respuestas, familia o ciclo recomendado, centro, género, edad y duración aproximada del test. El envío y el tratamiento de estos datos requieren tu consentimiento expreso: sin consentimiento no se puede iniciar ni completar el cuestionario desde la app.",
       "Datos del sorteo: nombre completo y correo electrónico, solo si decides participar y marcas la casilla correspondiente.",
-      "Datos técnicos y de uso: eventos de inicio, visualización de resultados y eventos de diagnóstico. Estos eventos se registran únicamente si autorizas la analítica al aceptar el cuestionario o al inscribirte en el sorteo.",
+      "Datos técnicos y de uso: eventos de inicio, visualización de resultados y eventos de diagnóstico. Estos eventos se registran al aceptar la política de privacidad del cuestionario o al inscribirte en el sorteo.",
     ],
   },
   {
@@ -34,7 +34,7 @@ const sections = [
     icon: Clock3,
     title: "Conservación",
     body: [
-      "Si aceptas el envío del cuestionario, las respuestas se conservan el tiempo necesario para generar el informe y prestar el servicio educativo.",
+      "Si aceptas la política de privacidad, las respuestas se conservan el tiempo necesario para generar el informe y prestar el servicio educativo.",
       "Si no das tu consentimiento, no se realizará ningún envío ni tratamiento de tus respuestas en el servidor; no existe una opción de procesamiento sólo local para completar el cuestionario dentro de la app.",
       "Los datos del sorteo se conservarán hasta su resolución o el periodo administrativo necesario para gestionar el premio.",
     ],
@@ -46,7 +46,7 @@ const sections = [
       "Tienes derecho de acceso, rectificación, supresión, oposición, limitación y portabilidad cuando proceda —dirígete al centro responsable o al contacto designado para Descubre-T.",
       "Si quieres retirar el consentimiento para el sorteo, ponte en contacto con el centro antes del cierre de la inscripción y tu participación será eliminada.",
       "Si diste consentimiento para enviar el cuestionario y quieres que tus datos sean eliminados del servidor, solicita su supresión indicando el `submissionId` (si lo conservas) o la fecha aproximada del envío; el centro gestionará la petición.",
-      "Para revocar la analítica localmente, borra los datos del sitio en tu navegador o solicita la retirada por los canales del centro —la configuración se guarda en el almacenamiento local (`descubre-t_analytics_consent`).",
+      "Para revocar la analítica localmente, borra los datos del sitio en tu navegador o solicita la retirada por los canales del centro.",
     ],
   },
 ];
