@@ -111,6 +111,16 @@ function getCompatibilidadAcademica(
   return 0;
 }
 
+function isNivelPermitido(nivelCiclo: string, nivelObjetivo: number | null) {
+  if (nivelObjetivo === null) return true;
+  if (nivelObjetivo === 2) return true;
+  if (nivelObjetivo === 0) return nivelCiclo === "Grado Básico";
+  if (nivelObjetivo === 1) {
+    return nivelCiclo === "Grado Básico" || nivelCiclo === "Grado Medio";
+  }
+  return true;
+}
+
 function computeMaxFamilyScores(): Record<FamiliaKey, number> {
   const maxScores: Record<FamiliaKey, number> = {
     FABRICACION: 0,
@@ -316,7 +326,9 @@ export function calcularRecomendaciones(
         familyUsed,
       } as CicloConPuntuacion & { familyUsed: FamiliaKey };
     })
-    .filter((c) => c.puntuacion > 0)
+    .filter(
+      (c) => c.puntuacion > 0 && isNivelPermitido(c.nivel, nivelObjetivoAcademico),
+    )
     .sort((a, b) => b.puntuacion - a.puntuacion);
 
   if (puntuados.length === 0) return [];
