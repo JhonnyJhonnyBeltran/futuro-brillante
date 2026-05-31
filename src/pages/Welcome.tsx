@@ -76,28 +76,28 @@ const Welcome = () => {
           className="flex min-h-0 flex-1 flex-col items-center justify-center text-center py-4 sm:py-6 anim-fade-up"
           style={{ animationDelay: "120ms" }}
         >
-          <h1 className="text-[clamp(2rem,9vw,2.6rem)] leading-[1.05] font-black tracking-tight mb-2">
+          <h1 className="text-[clamp(2rem,9vw,3rem)] leading-[1.05] font-black tracking-tight mb-2">
             Encuentra tu
             <br />
             <span className="text-gradient-accent">Ciclo Ideal</span>
           </h1>
-          <p className="text-[14px] text-muted-foreground max-w-[270px] leading-relaxed mt-1 mb-6 sm:mb-7">
+          <p className="text-[14px] sm:text-[15px] text-muted-foreground max-w-xs sm:max-w-sm leading-relaxed mt-1 mb-6 sm:mb-7">
             Responde unas preguntas y descubre qué formación profesional encaja mejor contigo.
           </p>
 
           {/* Áreas preview */}
-          <div className="grid grid-cols-3 gap-2.5 w-full max-w-[300px] mb-5 sm:mb-6">
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-4 w-full max-w-xs sm:max-w-sm mb-5 sm:mb-6">
             {STEPS.map(({ icon: Icon, label, desc, bg, color }) => (
               <div
                 key={label}
-                className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl"
+                className="flex flex-col items-center gap-1.5 py-3 sm:py-4 px-2 rounded-2xl"
                 style={{ background: bg }}
               >
                 <Icon size={22} style={{ color }} strokeWidth={2} />
-                <span className="text-[11px] font-semibold text-foreground leading-tight text-center">
+                <span className="text-[11px] sm:text-xs font-semibold text-foreground leading-tight text-center">
                   {label}
                 </span>
-                <span className="text-[10px] text-muted-foreground leading-tight text-center">
+                <span className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight text-center">
                   {desc}
                 </span>
               </div>

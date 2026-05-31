@@ -50,7 +50,7 @@ const OfflineScreen = () => {
             <span className="text-gradient-accent">Sin conexión</span>
           </h1>
 
-          <p className="text-[15px] text-muted-foreground mt-2 max-w-[300px] leading-relaxed">
+          <p className="text-[15px] text-muted-foreground mt-2 max-w-xs sm:max-w-sm leading-relaxed">
             Necesitas conexión a internet para realizar el cuestionario.
             Comprueba tu Wi-Fi o datos móviles e inténtalo de nuevo.
           </p>

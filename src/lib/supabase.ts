@@ -35,11 +35,10 @@ export async function trackEvent(event: string, data: Record<string, unknown> = 
 
   try {
     if (supabase) {
-      supabase.from("events").insert([{ event, data, created_at: new Date().toISOString() }]);
-      return;
+      await supabase.from("events").insert([{ event, data, created_at: new Date().toISOString() }]);
     }
-  } catch (error) {
-    void error;
+  } catch {
+    // silently ignore analytics errors
   }
 }
 
@@ -74,11 +73,13 @@ export interface SubmitQuizResult {
 export async function submitRaffle(payload: {
   nombreCompleto: string;
   email: string;
+  edad: string;
 }): Promise<{ success: boolean; error?: unknown }> {
   try {
     const { error } = await supabase.from("raffle_entries").insert([{
       nombre_completo: payload.nombreCompleto,
       email: payload.email,
+      edad: payload.edad || null,
     }]);
     if (error) return { success: false, error };
     return { success: true };
@@ -102,17 +103,35 @@ export async function submitQuiz(payload: SubmitQuizPayload): Promise<SubmitQuiz
       result_3: payload.results[2] ?? null,
       centro: payload.centro || null,
       genero: payload.genero || null,
-      edad: payload.edad || null,
+      edad: payload.edad ? parseInt(payload.edad, 10) : null,
       duration_seconds: payload.durationSeconds,
-      report_url: reportUrl,
       metadata: payload.metadata ?? {},
+      satisfied: true,
     };
 
     const { error } = await supabase.from("quiz_submissions").insert([dbPayload]);
-    if (error) return { success: false, error };
+    if (error) {
+      console.error("[submitQuiz] Supabase error:", error.message, error.details, error.hint);
+      return { success: false, error };
+    }
 
     return { success: true, submissionId, reportUrl };
   } catch (err) {
     return { success: false, error: err };
+  }
+}
+
+export async function updateSatisfied(
+  submissionId: string,
+  satisfied: boolean,
+): Promise<void> {
+  if (!submissionId) return;
+  try {
+    await supabase
+      .from("quiz_submissions")
+      .update({ satisfied })
+      .eq("id", submissionId);
+  } catch {
+    // silently ignore — non-critical feedback update
   }
 }

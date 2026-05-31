@@ -21,6 +21,7 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
   const [mounted, setMounted] = useState(open);
   const [closing, setClosing] = useState(false);
   const [nombre, setNombre] = useState("");
+  const [edad, setEdad] = useState("");
   const [email, setEmail] = useState("");
   const [acepta, setAcepta] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -50,10 +51,17 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
     e.preventDefault();
     const nombreLimpio = nombre.trim();
     const emailLimpio = email.trim();
+    const edadNumero = Number(edad);
     const errores: string[] = [];
 
     if (!nombreLimpio) {
       errores.push("nombre completo");
+    }
+
+    if (!edad) {
+      errores.push("edad");
+    } else if (!Number.isFinite(edadNumero) || edadNumero < 10 || edadNumero > 100) {
+      errores.push("edad válida (entre 10 y 100)");
     }
 
     if (!emailLimpio) {
@@ -78,7 +86,7 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
     }
 
     setEnviando(true);
-    const result = await submitRaffle({ nombreCompleto: nombreLimpio, email: emailLimpio });
+    const result = await submitRaffle({ nombreCompleto: nombreLimpio, email: emailLimpio, edad });
     setEnviando(false);
     if (result.success) {
       setAnalyticsConsent(true);
@@ -172,6 +180,21 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 placeholder="Tu nombre y apellidos"
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+                Edad *
+              </label>
+              <input
+                type="number"
+                value={edad}
+                onChange={(e) => setEdad(e.target.value)}
+                placeholder="Tu edad"
+                min={10}
+                max={100}
                 className={inputClass}
               />
             </div>

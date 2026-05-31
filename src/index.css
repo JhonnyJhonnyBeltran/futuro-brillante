@@ -129,6 +129,19 @@
     }
   }
 
+  @media (min-width: 768px) {
+    .mobile-shell {
+      max-width: 600px;
+      background: hsl(var(--background));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .mobile-shell {
+      max-width: 720px;
+    }
+  }
+
   .dot-pattern {
     background-image: radial-gradient(hsl(var(--border) / 0.5) 1px, transparent 1px);
     background-size: 40px 40px;

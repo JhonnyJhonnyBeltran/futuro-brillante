@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Download } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
+import { toast } from "sonner";
 import Header from "@/components/Header";
 import ResultCard from "@/components/ResultCard";
 import SorteoModal from "@/components/SorteoModal";
+import SatisfaccionModal from "@/components/SatisfaccionModal";
 import type { CicloConPuntuacion, FamiliaKey } from "@/data/ciclos";
-import { trackEvent } from "@/lib/supabase";
+import { trackEvent, updateSatisfied } from "@/lib/supabase";
 import { FAMILIA_LABEL } from "@/components/ResultadosCiclos";
 
 interface Perfil {
@@ -141,9 +143,12 @@ function generarInformeHTML(data: ResultsData): string {
 const Results = () => {
   const navigate = useNavigate();
   const [modalSorteo, setModalSorteo] = useState(false);
+  const [modalSatisfaccion, setModalSatisfaccion] = useState(false);
   const [inscrito, setInscrito] = useState(
     () => sessionStorage.getItem("eligetufut_inscrito") === "1"
   );
+  const [revealedCount, setRevealedCount] = useState(0);
+  const satisfaccionMostrada = useRef(false);
 
   const data = useMemo<ResultsData | null>(() => {
     const raw = sessionStorage.getItem("descubre-t_results");
@@ -161,6 +166,36 @@ const Results = () => {
       trackEvent("results_view", { top: results[0]?.nombre, familia: results[0]?.area });
     }
   }, [results]);
+
+  useEffect(() => {
+    if (
+      results.length > 0 &&
+      revealedCount >= results.length &&
+      !satisfaccionMostrada.current
+    ) {
+      satisfaccionMostrada.current = true;
+      const id = setTimeout(() => setModalSatisfaccion(true), 600);
+      return () => clearTimeout(id);
+    }
+  }, [revealedCount, results.length]);
+
+  const handleCardReveal = useCallback(() => {
+    setRevealedCount((c) => c + 1);
+  }, []);
+
+  const handleSatisfaccion = (satisfecho: boolean) => {
+    if (data?.submissionId) {
+      void updateSatisfied(data.submissionId, satisfecho);
+    }
+    trackEvent("satisfaction_response", { satisfecho, submission_id: data?.submissionId });
+    setModalSatisfaccion(false);
+    toast.success(
+      satisfecho
+        ? "¡Gracias por tu valoración!"
+        : "¡Gracias! Tu opinión nos ayuda a mejorar.",
+      { duration: 3000, className: "pointer-events-none" }
+    );
+  };
 
   const moreInfo = () => {
     window.open("https://fpelarenal.com/", "_blank", "noopener,noreferrer");
@@ -318,7 +353,7 @@ const Results = () => {
         <div className="flex flex-col gap-3 sm:gap-4">
           {results.map((r, i) => (
             <div key={r.id} className="anim-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
-              <ResultCard result={r} rank={i} />
+              <ResultCard result={r} rank={i} onReveal={handleCardReveal} />
             </div>
           ))}
         </div>
@@ -366,6 +401,12 @@ const Results = () => {
           setInscrito(true);
           setModalSorteo(false);
         }}
+      />
+
+      <SatisfaccionModal
+        open={modalSatisfaccion}
+        onClose={() => setModalSatisfaccion(false)}
+        onAnswer={handleSatisfaccion}
       />
     </div>
   );

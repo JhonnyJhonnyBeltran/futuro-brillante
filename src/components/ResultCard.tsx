@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { CicloConPuntuacion } from "@/data/ciclos";
 
 type ResultWithMeta = CicloConPuntuacion & { percentage?: number };
-type Props = { result: ResultWithMeta; rank: number };
+type Props = { result: ResultWithMeta; rank: number; onReveal?: () => void };
 
 type Phase = "idle" | "fold-out" | "fold-in";
 
@@ -56,7 +56,7 @@ const RankBadge = ({ rank, subtle = false }: { rank: number; subtle?: boolean })
   );
 };
 
-const ResultCard = ({ result, rank }: Props) => {
+const ResultCard = ({ result, rank, onReveal }: Props) => {
   const [phase, setPhase] = useState<Phase>("idle");
   const [showFront, setShowFront] = useState(false);
 
@@ -68,6 +68,7 @@ const ResultCard = ({ result, rank }: Props) => {
     setTimeout(() => {
       setShowFront(true);
       setPhase("fold-in");
+      onReveal?.();
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setPhase("idle");
@@ -140,7 +141,7 @@ const ResultCard = ({ result, rank }: Props) => {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              padding: "1.75rem 1.5rem",
+              padding: "1.75rem 2rem",
               gap: 10,
               overflow: "hidden",
             }}
@@ -148,19 +149,20 @@ const ResultCard = ({ result, rank }: Props) => {
             <RankBadge rank={rank} />
             <h3
               style={{
-                fontSize: "1.9rem",
+                fontSize: "clamp(1.4rem, 5vw, 1.9rem)",
                 fontWeight: 900,
                 color: "white",
                 textAlign: "center",
                 lineHeight: 1.15,
                 textShadow: "0 2px 8px rgba(0,0,0,0.25)",
+                wordBreak: "break-word",
               }}
             >
               {result.nombreGenerico}
             </h3>
             <span
               style={{
-                fontSize: 15,
+                fontSize: "clamp(13px, 2.5vw, 15px)",
                 color: "rgba(255,255,255,0.9)",
                 fontWeight: 600,
                 textAlign: "center",

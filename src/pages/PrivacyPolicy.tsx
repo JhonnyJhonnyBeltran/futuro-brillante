@@ -141,11 +141,11 @@ const PrivacyPolicy = () => {
           </div>
         </section>
 
-        <section className="mt-4 grid gap-3">
+        <section className="mt-4 grid gap-3 md:grid-cols-2">
           {sections.map(({ icon: Icon, title, body }, index) => (
             <article
               key={title}
-              className="rounded-[1.5rem] border border-border bg-white p-5 text-left anim-fade-up"
+              className={`rounded-[1.5rem] border border-border bg-white p-5 text-left anim-fade-up ${index === sections.length - 1 && sections.length % 2 !== 0 ? 'md:col-span-2' : ''}`}
               style={{ animationDelay: `${120 + index * 80}ms` }}
             >
               <div className="flex items-start gap-3">
