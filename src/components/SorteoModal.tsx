@@ -91,6 +91,12 @@ const SorteoModal = ({ open, onClose, onSuccess }: Props) => {
     if (result.success) {
       setAnalyticsConsent(true);
       onSuccess();
+    } else if (result.duplicate) {
+      toast.error("Este correo ya está inscrito en el sorteo.", {
+        description: "Cada persona puede participar una sola vez.",
+        duration: 4000,
+        className: "pointer-events-none",
+      });
     } else {
       toast.error("Ha ocurrido un error. Por favor, inténtalo de nuevo.", {
         duration: 3000,

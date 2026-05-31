@@ -74,11 +74,20 @@ export async function submitRaffle(payload: {
   nombreCompleto: string;
   email: string;
   edad: string;
-}): Promise<{ success: boolean; error?: unknown }> {
+}): Promise<{ success: boolean; duplicate?: boolean; error?: unknown }> {
   try {
+    const { data: existing } = await supabase
+      .from("raffle_entries")
+      .select("id")
+      .eq("email", payload.email.toLowerCase().trim())
+      .limit(1)
+      .maybeSingle();
+
+    if (existing) return { success: false, duplicate: true };
+
     const { error } = await supabase.from("raffle_entries").insert([{
       nombre_completo: payload.nombreCompleto,
-      email: payload.email,
+      email: payload.email.toLowerCase().trim(),
       edad: payload.edad || null,
     }]);
     if (error) return { success: false, error };
