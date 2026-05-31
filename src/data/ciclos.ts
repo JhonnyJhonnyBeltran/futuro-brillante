@@ -47,7 +47,7 @@ export const ciclos: Ciclo[] = [
       P7: { A: 3, B: 1, C: 0, D: 0, E: 0 },
       P8: { A: 3, B: 1, C: 0, D: 0 },
       P9: { A: 3, B: 1, C: 0, D: 0, E: 0 },
-      P10: { A: 3, B: 0, C: -4, D: 1 },
+      P10: { A: 3, B: 1, C: 0, D: 0, E: 0 },
     },
   },
   {
@@ -62,7 +62,7 @@ export const ciclos: Ciclo[] = [
       P7: { A: 2, B: 3, C: 0, D: 0, E: 0 },
       P8: { A: 0, B: 3, C: 1, D: 0 },
       P9: { A: 1, B: 3, C: 0, D: 0, E: 0 },
-      P10: { A: -3, B: 3, C: 0, D: 1 },
+      P10: { A: 1, B: 3, C: 1, D: 0, E: 0 },
     },
   },
   {
@@ -78,7 +78,7 @@ export const ciclos: Ciclo[] = [
       P7: { A: 0, B: 1, C: 3, D: 1, E: 1 },
       P8: { A: 0, B: 1, C: 3, D: 2 },
       P9: { A: 0, B: 1, C: 3, D: 1, E: 1 },
-      P10: { A: -4, B: 0, C: 3, D: 1 },
+      P10: { A: 0, B: 1, C: 3, D: 1, E: 1 },
     },
   },
   {
@@ -94,7 +94,7 @@ export const ciclos: Ciclo[] = [
       P7: { A: 0, B: 0, C: 1, D: 3, E: 0 },
       P8: { A: 0, B: 1, C: 3, D: 1 },
       P9: { A: 0, B: 0, C: 1, D: 3, E: 0 },
-      P10: { A: -4, B: 0, C: 3, D: 1 },
+      P10: { A: 0, B: 0, C: 1, D: 3, E: 0 },
     },
     scores_f2_GESTION: {
       P7: { A: 0, B: 3, C: 1, D: 2 },
@@ -116,13 +116,13 @@ export const ciclos: Ciclo[] = [
       P7: { A: 0, B: 0, C: 1, D: 0, E: 3 },
       P8: { A: 0, B: 0, C: 1, D: 3 },
       P9: { A: 0, B: 0, C: 1, D: 0, E: 3 },
-      P10: { A: 1, B: 2, C: 1, D: 2 },
+      P10: { A: 0, B: 0, C: 1, D: 0, E: 3 },
     },
     scores_f2_DIGITAL: {
       P7: { A: 0, B: 0, C: 3, D: 0 },
       P8: { A: 0, B: 0, C: 3, D: 0 },
       P9: { A: 0, B: 0, C: 3, D: 0 },
-      P10: { A: 2, B: 2, C: 1, D: 2 },
+      P10: { A: 1, B: 1, C: 3, D: 1 },
     },
   },
   {
@@ -138,7 +138,7 @@ export const ciclos: Ciclo[] = [
       P7: { A: 3, B: 0, C: 0, D: 0 },
       P8: { A: 3, B: 0, C: 0, D: 0 },
       P9: { A: 3, B: 0, C: 0, D: 0 },
-      P10: { A: 3, B: 0, C: -4, D: 1 },
+      P10: { A: 3, B: 0, C: 0, D: 0 },
     },
   },
   {
@@ -154,7 +154,7 @@ export const ciclos: Ciclo[] = [
       P7: { A: 3, B: 1, C: 0, D: 1 },
       P8: { A: 2, B: 1, C: 0, D: 0 },
       P9: { A: 3, B: 1, C: 0, D: 1 },
-      P10: { A: -3, B: 3, C: 0, D: 1 },
+      P10: { A: 3, B: 1, C: 0, D: 1 },
     },
   },
   {
@@ -170,13 +170,13 @@ export const ciclos: Ciclo[] = [
       P7: { A: 1, B: 3, C: 0, D: 0 },
       P8: { A: 2, B: 2, C: 0, D: 1 },
       P9: { A: 2, B: 3, C: 0, D: 0 },
-      P10: { A: -3, B: 3, C: 0, D: 1 },
+      P10: { A: 1, B: 3, C: 0, D: 0 },
     },
     scores_f2_FABRICACION: {
       P7: { A: 3, B: 2, C: 0, D: 0, E: 0 },
       P8: { A: 1, B: 3, C: 0, D: 0 },
       P9: { A: 3, B: 2, C: 0, D: 0, E: 0 },
-      P10: { A: -3, B: 3, C: 0, D: 1 },
+      P10: { A: 2, B: 3, C: 0, D: 1 },
     },
   },
   {
@@ -192,13 +192,13 @@ export const ciclos: Ciclo[] = [
       P7: { A: 0, B: 2, C: 2, D: 3 },
       P8: { A: 0, B: 1, C: 2, D: 3 },
       P9: { A: 0, B: 3, C: 1, D: 2 },
-      P10: { A: -4, B: 0, C: 3, D: 1 },
+      P10: { A: 0, B: 2, C: 2, D: 3 },
     },
     scores_f2_DIGITAL: {
       P7: { A: 1, B: 3, C: 0, D: 2 },
       P8: { A: 1, B: 3, C: 0, D: 2 },
       P9: { A: 1, B: 3, C: 0, D: 2 },
-      P10: { A: -4, B: 1, C: 3, D: 1 },
+      P10: { A: 2, B: 0, C: 1, D: 3 },
     },
   },
   {
@@ -214,13 +214,13 @@ export const ciclos: Ciclo[] = [
       P7: { A: 3, B: 1, C: 0, D: 3 },
       P8: { A: 3, B: 1, C: 0, D: 3 },
       P9: { A: 3, B: 1, C: 0, D: 3 },
-      P10: { A: -4, B: 0, C: 3, D: 1 },
+      P10: { A: 3, B: 1, C: 0, D: 2 },
     },
     scores_f2_ELECTRICA: {
       P7: { A: 0, B: 0, C: 3, D: 2 },
       P8: { A: 0, B: 0, C: 3, D: 2 },
       P9: { A: 0, B: 0, C: 3, D: 2 },
-      P10: { A: -4, B: 0, C: 3, D: 1 },
+      P10: { A: 0, B: 1, C: 3, D: 2 },
     },
   },
   {
@@ -236,7 +236,7 @@ export const ciclos: Ciclo[] = [
       P7: { A: 1, B: 1, C: 1, D: 3 },
       P8: { A: 0, B: 1, C: 1, D: 2 },
       P9: { A: 1, B: 1, C: 1, D: 3 },
-      P10: { A: -4, B: 0, C: 3, D: 1 },
+      P10: { A: 1, B: 1, C: 1, D: 3 },
     },
   },
   {

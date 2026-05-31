@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-const PASOS_FASE1 = 6;
+const PASOS_FASE1 = 7; // P1-P6 + PNIVEL
 const PASOS_FASE2 = 4;
 
 const GENDER_OPTIONS = [
@@ -214,7 +214,8 @@ const Cuestionario = () => {
 
   const preguntaActual = useMemo(() => {
     if (step < 6) return PREGUNTAS_FASE1[step];
-    if (familiaDetectada) return PREGUNTAS_FASE2[familiaDetectada][step - 6];
+    if (step === 6) return PREGUNTAS_FASE1[6];
+    if (familiaDetectada) return PREGUNTAS_FASE2[familiaDetectada][step - 7];
     return null;
   }, [step, familiaDetectada]);
 
@@ -319,14 +320,21 @@ const Cuestionario = () => {
 
       setTimeout(() => {
         if (step === 5) {
+          // Detecta la familia tras P6 pero avanza a PNIVEL, no a Fase 2 todavia
           const familia = detectarFamilia(nuevasRespuestas);
           transicionar(() => {
             setFamiliaDetectada(familia);
             setStep(6);
           });
-        } else if (step === 9) {
+        } else if (step === 6) {
+          // PNIVEL respondida: ahora si salta a Fase 2
+          transicionar(() => setStep(7));
+        } else if (step === 10) {
           void (async () => {
-            const recs = calcularRecomendaciones(nuevasRespuestas);
+            const recs = calcularRecomendaciones(
+              nuevasRespuestas,
+              familiaDetectada ?? undefined,
+            );
             const duracion = startTimeRef.current
               ? Math.round((Date.now() - startTimeRef.current) / 1000)
               : null;
@@ -372,7 +380,7 @@ const Cuestionario = () => {
         }
       }, 150);
     },
-    [step, respuestas, preguntaActual, transicionar, buildStatsPayload, centro, genero, edad, aceptaPrivacidad],
+    [step, respuestas, preguntaActual, transicionar, buildStatsPayload, centro, genero, edad, aceptaPrivacidad, familiaDetectada],
   );
 
   const handleAtras = useCallback(() => {

@@ -3,7 +3,6 @@ import {
   type CicloConPuntuacion,
   type FamiliaKey,
 } from "@/data/ciclos";
-import { PREGUNTAS_FASE2 } from "@/data/preguntas";
 
 const PESOS_FAMILIA: Record<FamiliaKey, Record<string, number>> = {
   FABRICACION: {
@@ -40,12 +39,13 @@ const PESOS_FAMILIA: Record<FamiliaKey, Record<string, number>> = {
     "P1-D": 1,
     "P2-B": 3,
     "P2-C": 2,
-    "P3-D": 3,
+    "P3-C": 3,
+    "P3-D": 1,
     "P3-A": 1,
     "P4-C": 3,
     "P4-E": 1,
-    "P5-E": 3,
-    "P5-C": 1,
+    "P5-E": 1,
+    "P5-C": 3,
     "P6-D": 3,
     "P6-B": 1,
   },
@@ -54,7 +54,8 @@ const PESOS_FAMILIA: Record<FamiliaKey, Record<string, number>> = {
     "P1-C": 1,
     "P2-D": 3,
     "P2-C": 1,
-    "P3-C": 3,
+    "P3-C": 0,
+    "P3-D": 1,
     "P3-B": 1,
     "P4-D": 3,
     "P5-D": 3,
@@ -95,7 +96,7 @@ const NIVEL_OBJETIVO_POR_RESPUESTA: Record<string, number | null> = {
 };
 
 function getNivelObjetivoAcademico(respuestas: Record<string, string>) {
-  return NIVEL_OBJETIVO_POR_RESPUESTA[respuestas.P10] ?? null;
+  return NIVEL_OBJETIVO_POR_RESPUESTA[respuestas.PNIVEL] ?? null;
 }
 
 function getCompatibilidadAcademica(
@@ -158,14 +159,6 @@ function computeMaxCicloScore(
   if (!grid) return 0;
   let total = 0;
   for (const p of ["P7", "P8", "P9", "P10"] as const) {
-    // si hay respuestas y la respuesta es una opción "No lo sé todavía", omitimos esta pregunta del máximo
-    if (respuestas && respuestas[p]) {
-      const respKey = respuestas[p];
-      const preguntasFamilia = PREGUNTAS_FASE2[familia] ?? [];
-      const pregunta = preguntasFamilia.find((q) => q.id === p);
-      const opt = pregunta?.opciones.find((o) => o.clave === respKey);
-      if (opt && /no lo sé/i.test(opt.texto)) continue;
-    }
     const opts = grid[p];
     if (!opts) continue;
     const maxOpt = Math.max(...Object.values(opts as Record<string, number>));
@@ -268,13 +261,6 @@ function puntuarCiclo(
   for (const p of ["P7", "P8", "P9", "P10"] as const) {
     const resp = respuestas[p];
     if (resp && grid[p]) {
-      // si la opción textual es "No lo sé todavía", no la contabilizamos
-      const preguntasFamilia = PREGUNTAS_FASE2[familia] ?? [];
-      const pregunta = preguntasFamilia.find((q) => q.id === p);
-      const opt = pregunta?.opciones.find((o) => o.clave === resp);
-      if (opt && /no lo sé/i.test(opt.texto)) {
-        continue;
-      }
       total += grid[p][resp] ?? 0;
     }
   }
@@ -283,6 +269,7 @@ function puntuarCiclo(
 
 export function calcularRecomendaciones(
   respuestas: Record<string, string>,
+  familyFocus?: FamiliaKey,
 ): Array<
   CicloConPuntuacion & {
     percentage: number;
@@ -293,20 +280,31 @@ export function calcularRecomendaciones(
   const familiaScores = calcularScoresFamilia(respuestas);
   const maxFamilyScores = computeMaxFamilyScores();
   const nivelObjetivoAcademico = getNivelObjetivoAcademico(respuestas);
+  const ciclosFiltrados = familyFocus
+    ? ciclos.filter((ciclo) => ciclo.familias.includes(familyFocus))
+    : ciclos;
+  const ciclosBase = ciclosFiltrados.length > 0 ? ciclosFiltrados : ciclos;
 
-  let puntuados = ciclos
+  let puntuados = ciclosBase
     .map((ciclo) => {
       const familias = ciclo.familias as FamiliaKey[];
       let familyUsed = familias[0];
       let bestFamilyScore = -1;
 
-      for (const familia of familias) {
-        const familyRaw = familiaScores[familia] ?? 0;
-        const maxFamily = maxFamilyScores[familia] || 1;
-        const normalizedFamily = familyRaw / maxFamily;
-        if (normalizedFamily > bestFamilyScore) {
-          bestFamilyScore = normalizedFamily;
-          familyUsed = familia;
+      if (familyFocus && familias.includes(familyFocus)) {
+        const familyRaw = familiaScores[familyFocus] ?? 0;
+        const maxFamily = maxFamilyScores[familyFocus] || 1;
+        bestFamilyScore = familyRaw / maxFamily;
+        familyUsed = familyFocus;
+      } else {
+        for (const familia of familias) {
+          const familyRaw = familiaScores[familia] ?? 0;
+          const maxFamily = maxFamilyScores[familia] || 1;
+          const normalizedFamily = familyRaw / maxFamily;
+          if (normalizedFamily > bestFamilyScore) {
+            bestFamilyScore = normalizedFamily;
+            familyUsed = familia;
+          }
         }
       }
 

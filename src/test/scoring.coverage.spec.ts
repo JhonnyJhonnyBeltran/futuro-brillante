@@ -38,6 +38,14 @@ function buildBestFase2Base(grid: Grid) {
   };
 }
 
+function getAllowedNivelKeysForCiclo(nivel: string) {
+  if (nivel === "Grado Básico") return ["A", "B", "C", "D"] as const;
+  if (nivel === "Grado Medio") return ["B", "C", "D"] as const;
+  if (nivel === "Certificado de Especialidad") return ["C", "D"] as const;
+  if (nivel === "Grado Superior") return ["C", "D"] as const;
+  return ["C", "D"] as const;
+}
+
 function* generateFase1Combos(): Generator<Respuestas> {
   const total = FASE1_QUESTIONS.length;
   const indices = new Array(total).fill(0);
@@ -68,6 +76,10 @@ function findResponsesForCycle(ciclo: Ciclo) {
   } | null = null;
 
   for (const base of generateFase1Combos()) {
+    const allowedNivelKeys = getAllowedNivelKeysForCiclo(ciclo.nivel);
+    if (!allowedNivelKeys.includes(base.PNIVEL as any)) {
+      continue;
+    }
     for (const familia of ciclo.familias) {
       const grid = getScoreGrid(ciclo, familia);
       if (!grid) continue;
@@ -123,6 +135,7 @@ describe("scoring coverage", () => {
       P4: "A",
       P5: "A",
       P6: "A",
+      PNIVEL: "A",
       P7: "A",
       P8: "A",
       P9: "A",

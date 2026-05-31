@@ -95,6 +95,7 @@ describe("scoring restricciones por nivel", () => {
       P4: "A",
       P5: "A",
       P6: "A",
+      PNIVEL: "A",
       P7: "A",
       P8: "A",
       P9: "A",
@@ -109,7 +110,7 @@ describe("scoring restricciones por nivel", () => {
   });
 
   test.each(FAMILIAS.flatMap((familia) => NIVELES.map((nivel) => [familia, nivel])))(
-    "nivel %s (%s) respeta restricciones de nivel",
+    "nivel %s (%s) respeta restricciones de nivel en todas las familias",
     (familia, nivel) => {
       const base = findFase1ForFamily(familia);
       if (!base) {
@@ -120,7 +121,7 @@ describe("scoring restricciones por nivel", () => {
       const respuestas: Respuestas = {
         ...base,
         ...fase2,
-        P10: nivel,
+        PNIVEL: nivel,
       };
 
       const resultado = calcularRecomendaciones(respuestas);
