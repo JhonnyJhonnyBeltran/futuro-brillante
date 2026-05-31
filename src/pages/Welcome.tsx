@@ -18,30 +18,7 @@ const Welcome = () => {
   };
 
   return (
-    <div className="mobile-shell dot-pattern">
-      <div
-        className="blob"
-        style={{
-          width: 340,
-          height: 340,
-          top: -100,
-          left: -100,
-          background: "rgba(255,107,53,0.06)",
-          animation: "blob-float 8s ease-in-out infinite",
-        }}
-      />
-      <div
-        className="blob"
-        style={{
-          width: 300,
-          height: 300,
-          bottom: -80,
-          right: -80,
-          background: "rgba(59,130,246,0.06)",
-          animation: "blob-float 10s ease-in-out infinite reverse",
-        }}
-      />
-
+    <div className="mobile-shell welcome-shell">
       <main className="shell-scroll relative z-10 flex flex-col items-center px-5 sm:px-6 pt-6 sm:pt-8 pb-5">
 
         {/* Logo del centro */}

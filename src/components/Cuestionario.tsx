@@ -586,7 +586,7 @@ const Cuestionario = () => {
             <div className="flex flex-col gap-3">
               {preguntaActual.opciones.map((opcion) => (
                 <OpcionBtn
-                  key={opcion.clave}
+                  key={`${preguntaActual.id}-${opcion.clave}`}
                   clave={opcion.clave}
                   texto={opcion.texto}
                   selected={respuestaActual === opcion.clave}

@@ -142,6 +142,10 @@
     }
   }
 
+  .welcome-shell {
+    background: transparent;
+  }
+
   .dot-pattern {
     background-image: radial-gradient(hsl(var(--border) / 0.5) 1px, transparent 1px);
     background-size: 40px 40px;
@@ -232,7 +236,7 @@
     transition: all var(--transition-base);
     overflow: hidden;
   }
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .option-btn:hover {
       border-color: hsl(var(--primary));
       transform: translateY(-2px);
@@ -406,3 +410,16 @@
   to { opacity: 1; transform: translateY(0); }
 }
 .anim-fade-up { animation: fade-in-up 600ms ease-out both; }
+
+
+body {
+  background: var(--gradient-subtle) !important;
+  background-attachment: fixed !important;
+}
+
+@media (min-width: 768px) {
+  .mobile-shell {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}

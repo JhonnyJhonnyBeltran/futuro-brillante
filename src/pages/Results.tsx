@@ -352,11 +352,27 @@ const Results = () => {
         </div>
 
         <div className="flex flex-col gap-3 sm:gap-4">
-          {results.map((r, i) => (
-            <div key={r.id} className="anim-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
-              <ResultCard result={r} rank={i} onReveal={handleCardReveal} />
+          {results.length === 0 ? (
+            <div className="anim-fade-up rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
+              Con las respuestas que has elegido no podemos asignarte automáticamente un ciclo, pero no te desanimes!
+              Te podemos ayudar en{" "}
+              <a
+                href="https://fpelarenal.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-blue-600 underline"
+              >
+                https://fpelarenal.com/
+              </a>
+              . No dudes en contactarnos, te esperamos ;).
             </div>
-          ))}
+          ) : (
+            results.map((r, i) => (
+              <div key={r.id} className="anim-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
+                <ResultCard result={r} rank={i} onReveal={handleCardReveal} />
+              </div>
+            ))
+          )}
         </div>
 
         <div className="mt-5 sm:mt-7 flex flex-col gap-3">
@@ -384,14 +400,15 @@ const Results = () => {
             Ver más información
           </button>
         </div>
-
-        <button
-          onClick={descargarInforme}
-          className="mt-4 sm:mt-6 mx-auto flex items-center gap-2 text-sm font-semibold text-gradient-accent"
-        >
-          <Download size={16} />
-          Descargar informe
-        </button>
+          {results.length > 0 && (
+            <button
+              onClick={descargarInforme}
+              className="mt-4 sm:mt-6 mx-auto flex items-center gap-2 text-sm font-semibold text-gradient-accent"
+            >
+              <Download size={16} />
+              Descargar informe
+            </button>
+          )}
       </main>
 
       <SorteoModal
