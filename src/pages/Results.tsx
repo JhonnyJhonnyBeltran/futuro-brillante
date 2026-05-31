@@ -184,6 +184,7 @@ const Results = () => {
   }, []);
 
   const handleSatisfaccion = (satisfecho: boolean) => {
+    console.log("[satisfaccion] submissionId:", data?.submissionId, "| satisfecho:", satisfecho);
     if (data?.submissionId) {
       void updateSatisfied(data.submissionId, satisfecho);
     }

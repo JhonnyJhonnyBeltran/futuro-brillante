@@ -126,12 +126,11 @@ export async function updateSatisfied(
   satisfied: boolean,
 ): Promise<void> {
   if (!submissionId) return;
-  try {
-    await supabase
-      .from("quiz_submissions")
-      .update({ satisfied })
-      .eq("id", submissionId);
-  } catch {
-    // silently ignore — non-critical feedback update
+  const { error } = await supabase.rpc("update_submission_satisfied", {
+    submission_id: submissionId,
+    satisfied_value: satisfied,
+  });
+  if (error) {
+    console.error("[updateSatisfied] error:", error.message, error.details ?? "", error.hint ?? "");
   }
 }
