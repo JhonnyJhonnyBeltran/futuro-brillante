@@ -32,6 +32,7 @@ export interface CicloConPuntuacion extends Ciclo {
   puntuacion: number;
   percentage: number;
   confidence: number;
+  sinAcceso?: boolean;
 }
 
 export const ciclos: Ciclo[] = [

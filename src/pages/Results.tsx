@@ -66,6 +66,7 @@ function generarInformeHTML(data: ResultsData): string {
         <div style="font-size:17px;font-weight:900;color:#0f172a;letter-spacing:-0.3px;margin-bottom:3px;">${c.nombreGenerico ?? c.nombre}</div>
         <div style="font-size:11px;font-weight:600;color:#94a3b8;margin-bottom:8px;">${c.nombre} &nbsp;·&nbsp; ${c.area} &nbsp;·&nbsp; ${c.nivel}</div>
         <div style="font-size:12px;color:#475569;line-height:1.65;">${c.descripcion}</div>
+        ${c.sinAcceso ? `<div style="margin-top:8px;padding:7px 10px;border-radius:7px;background:#f1f5f9;border:1px solid #e2e8f0;font-size:10.5px;color:#64748b;line-height:1.6;">Aunque no tengas los requisitos necesarios para cursar estos ciclos, ponte en contacto con el departamento de información y orientación profesional del CPIFP El Arenal y te ayudaremos a crear tu itinerario formativo</div>` : ""}
       </div>
     </div>`;
   }).join("");

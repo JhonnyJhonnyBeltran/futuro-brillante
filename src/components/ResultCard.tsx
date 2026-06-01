@@ -4,6 +4,9 @@ import type { CicloConPuntuacion } from "@/data/ciclos";
 type ResultWithMeta = CicloConPuntuacion & { percentage?: number };
 type Props = { result: ResultWithMeta; rank: number; onReveal?: () => void };
 
+const DISCLAIMER_SIN_ACCESO =
+  "Aunque no tengas los requisitos necesarios para cursar estos ciclos, ponte en contacto con el departamento de información y orientación profesional del CPIFP El Arenal y te ayudaremos a crear tu itinerario formativo";
+
 type Phase = "idle" | "fold-out" | "fold-in";
 
 const RANK_CONFIG = [
@@ -116,6 +119,21 @@ const ResultCard = ({ result, rank, onReveal }: Props) => {
           <p className="text-sm text-muted-foreground leading-relaxed">
             {result.descripcion}
           </p>
+          {result.sinAcceso && (
+            <div
+              style={{
+                marginTop: "0.875rem",
+                padding: "0.625rem 0.75rem",
+                borderRadius: "0.625rem",
+                background: "hsl(var(--muted))",
+                border: "1px solid hsl(var(--border))",
+              }}
+            >
+              <p style={{ fontSize: "0.72rem", color: "hsl(var(--muted-foreground))", lineHeight: 1.55 }}>
+                {DISCLAIMER_SIN_ACCESO}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

@@ -322,11 +322,10 @@ export function calcularRecomendaciones(
         ...ciclo,
         puntuacion: scoreOrdenado,
         familyUsed,
+        sinAcceso: !isNivelPermitido(ciclo.nivel, nivelObjetivoAcademico),
       } as CicloConPuntuacion & { familyUsed: FamiliaKey };
     })
-    .filter(
-      (c) => c.puntuacion > 0 && isNivelPermitido(c.nivel, nivelObjetivoAcademico),
-    )
+    .filter((c) => c.puntuacion > 0)
     .sort((a, b) => b.puntuacion - a.puntuacion);
 
   if (puntuados.length === 0) return [];
